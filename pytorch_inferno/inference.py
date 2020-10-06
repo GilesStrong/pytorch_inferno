@@ -7,4 +7,5 @@ import pandas as pd
 import numpy as np
 
 # Cell
-def bin_preds(df:pd.DataFrame, bins:np.ndarray=np.linspace(0.,1.,11), pred_name='pred')
+def bin_preds(df:pd.DataFrame, bins:np.ndarray=np.linspace(0.,1.,11), pred_name='pred') -> None:
+    df['pred_bin'] = np.digitize(df[pred_name], bins)-1

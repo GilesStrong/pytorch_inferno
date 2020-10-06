@@ -15,7 +15,9 @@ class PseudoData():
     def sample(self, n:int) -> Tuple[np.ndarray,np.ndarray,None]:
         return self.func(n).astype('float32'),self.targ*np.ones((n,1)).astype('float32'),None
     def get_df(self, n:int) -> pd.DataFrame:
-        df = pd.DataFrame(np.hstack(self.sample(n)))
+        d = self.sample(n)
+        if d[2] is None: d = d[:2]
+        df = pd.DataFrame(np.hstack(d))
         df.rename(columns={df.columns[-1]:'gen_target'}, inplace=True)
         return df
 

@@ -19,13 +19,12 @@ plt_title_sz = 26
 plt_leg_sz   = 16
 
 # Cell
-def plot_preds(df:pd.DataFrame, bin_edges:np.ndarray=np.linspace(0.,1.,11),
-               pred_name:str='pred', wgt_name:Optional[str]=None) -> None:
+def plot_preds(df:pd.DataFrame, bin_edges:np.ndarray=np.linspace(0.,1.,11), pred_name:str='pred') -> None:
     with sns.axes_style(**plt_style), sns.color_palette(plt_cat_pal) as palette:
         plt.figure(figsize=(plt_sz*16/9, plt_sz))
         for t,n in ((0,'Background'),(1,'Signal')):
             cut = (df['gen_target'] == t)
-            hist_kws = {} if wgt_name is None else {'weights':wgt_scale*df.loc[cut, wgt_name]}
+            hist_kws = {} if 'gen_weight' not in df.columns else {'weights':wgt_scale*df.loc[cut, 'gen_weight']}
             sns.distplot(df.loc[cut, pred_name], bins=bin_edges, label=n, hist_kws=hist_kws, norm_hist=True, kde=False)
         plt.legend(fontsize=plt_leg_sz)
         plt.xlabel("Class prediction", fontsize=plt_lbl_sz)
