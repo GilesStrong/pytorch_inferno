@@ -2,9 +2,38 @@
 
 __all__ = ["index", "modules", "custom_doc_links", "git_url"]
 
-index = {}
+index = {"PseudoData": "00_pseudodata.ipynb",
+         "paper_sig": "00_pseudodata.ipynb",
+         "paper_bkg_bm0": "00_pseudodata.ipynb",
+         "ModelWrapper": "01_model_wrapper.ipynb",
+         "DataSet": "02_data.ipynb",
+         "WeightedDataLoader": "02_data.ipynb",
+         "DataPair": "02_data.ipynb",
+         "get_paper_data": "02_data.ipynb",
+         "AbsCallback": "03_callback.ipynb",
+         "LossTracker": "03_callback.ipynb",
+         "EarlyStopping": "03_callback.ipynb",
+         "PredHandler": "03_callback.ipynb",
+         "to_device": "04_utils.ipynb",
+         "device": "04_utils.ipynb",
+         "to_np": "04_utils.ipynb",
+         "plt_style": "05_plotting.ipynb",
+         "plt_sz": "05_plotting.ipynb",
+         "plt_cat_pal": "05_plotting.ipynb",
+         "plt_tk_sz": "05_plotting.ipynb",
+         "plt_lbl_sz": "05_plotting.ipynb",
+         "plt_title_sz": "05_plotting.ipynb",
+         "plt_leg_sz": "05_plotting.ipynb",
+         "plot_preds": "05_plotting.ipynb",
+         "bin_preds": "06_inference.ipynb"}
 
-modules = []
+modules = ["pseudodata.py",
+           "model_wrapper.py",
+           "data.py",
+           "callback.py",
+           "utils.py",
+           "plotting.py",
+           "inference.py"]
 
 doc_url = "https://GilesStrong.github.io/pytorch_inferno/"
 
