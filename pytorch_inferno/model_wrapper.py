@@ -84,7 +84,7 @@ class ModelWrapper():
 
     def _predict_array(self, x:Union[Tensor,np.ndarray], pred_cb:PredHandler=PredHandler(),
                    cbs:Optional[Union[AbsCallback,List[AbsCallback]]]=None) -> np.ndarray:
-        return self._predict_dl(WeightedDataLoader(DataSet(x), batch_size=len(x)))
+        return self._predict_dl(WeightedDataLoader(DataSet(x), batch_size=len(x)), pred_cb, cbs)
 
     def predict(self, x:Union[Tensor,np.ndarray], pred_cb:PredHandler=PredHandler(),
                 cbs:Optional[Union[AbsCallback,List[AbsCallback]]]=None) -> np.ndarray:

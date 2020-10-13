@@ -33,7 +33,7 @@ class _PaperData():
                           np.random.exponential(self.l, size=n)[:,None]))
 
 # Cell
-paper_sig = _PaperData([0,0], [[1,0],[0,1]], 0, 2)
+paper_sig = _PaperData(mu=[0,0], conv=[[1,0],[0,1]], r=0, l=2)
 
 # Cell
-paper_bkg_bm0 = _PaperData([2,0], [[5,0],[0,9]], 0, 3)
+paper_bkg_bm0 = _PaperData(mu=[2,0], conv=[[5,0],[0,9]], r=0, l=3)
