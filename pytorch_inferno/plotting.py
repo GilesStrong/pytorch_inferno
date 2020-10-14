@@ -51,7 +51,8 @@ def plot_likelihood(nll:np.ndarray, mu_scan:np.ndarray=np.linspace(20,80,61)) ->
     with sns.axes_style(**plt_style), sns.color_palette(plt_cat_pal) as palette:
         plt.figure(figsize=(plt_sz*16/9, plt_sz))
         m = mu_scan[np.argmin(nll)]
-        w = get_likelihood_width(nll, mu_scan=mu_scan)
+        try:               w = get_likelihood_width(nll, mu_scan=mu_scan)
+        except ValueError: w = np.NaN
         plt.plot(mu_scan,nll, label=f'Value = {m}, width = {w:.2f}')
         plt.plot(mu_scan,0.5*np.ones_like(mu_scan), linestyle='--')
         plt.legend(fontsize=plt_leg_sz)
