@@ -97,6 +97,7 @@ def interp_shape(alpha:Tensor, f_b_nom:Tensor, f_b_up:Tensor, f_b_dw:Tensor):
                           (2 * b + torch.sign(alpha_t) * a) *
                           (alpha_t - torch.sign(alpha_t)) + switch,
                           a*torch.pow(alpha_t, 2)+ b * alpha_t)
+    abs_var = a*torch.pow(alpha_t, 2)+ b * alpha_t
     return f_b_nom + abs_var.sum(1)
 
 # Cell
@@ -117,7 +118,7 @@ def calc_grad_hesse(nll:Tensor, alpha:Tensor) -> Tuple[Tensor,Tensor]:
 
 # Cell
 def calc_profile_nll(s_true:float, b_true:float, s_exp:float, b_exp:float, f_s:Tensor, alpha:Tensor,
-                     f_b_nom:Tensor, f_b_up:Tensor, f_b_dw:Tensor, n_steps:int=100, lr:float=1) -> Tuple[Tensor,Tensor]:
+                     f_b_nom:Tensor, f_b_up:Tensor, f_b_dw:Tensor, n_steps:int=100, lr:float=0.1) -> Tuple[Tensor,Tensor]:
     get_nll = partialler(calc_nll, s_true=s_true, b_true=b_true, s_exp=s_exp, b_exp=b_exp,
                          f_s=f_s, f_b_nom=f_b_nom, f_b_up=f_b_up, f_b_dw=f_b_dw)
     for i in range(n_steps):  # Newton optimise nuisances
@@ -129,7 +130,7 @@ def calc_profile_nll(s_true:float, b_true:float, s_exp:float, b_exp:float, f_s:T
 
 # Cell
 def likelihood_from_updw(f_s:Tensor, f_b_nom:Tensor, f_b_up:Tensor, f_b_dw:Tensor, n:int=1050,
-                         mu_scan:np.ndarray=np.linspace(20,80,61), true_mu=50, n_steps:int=100, lr:float=1) -> np.ndarray:
+                         mu_scan:np.ndarray=np.linspace(20,80,61), true_mu=50, n_steps:int=100, lr:float=0.1) -> np.ndarray:
     alpha = torch.zeros((1,len(f_b_up)), requires_grad=True)
     opt = partialler(calc_profile_nll, s_true=true_mu, b_true=n-true_mu, f_s=f_s, alpha=alpha,
                      f_b_nom=f_b_nom, f_b_up=f_b_up, f_b_dw=f_b_dw, n_steps=n_steps, lr=lr)

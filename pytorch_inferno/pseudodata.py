@@ -30,7 +30,7 @@ class _PaperData():
 
     def __call__(self, n:int) -> np.ndarray:
         return np.hstack((np.random.multivariate_normal(self.mu+self.r, self.conv, n),
-                          np.random.exponential(self.l, size=n)[:,None]))
+                          np.random.exponential(1/self.l, size=n)[:,None]))
 
 # Cell
 paper_sig = _PaperData(mu=[0,0], conv=[[1,0],[0,1]], r=0, l=2)
