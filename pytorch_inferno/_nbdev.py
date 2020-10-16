@@ -38,7 +38,9 @@ index = {"PseudoData": "00_pseudodata.ipynb",
          "calc_nll": "06_inference.ipynb",
          "calc_grad_hesse": "06_inference.ipynb",
          "calc_profile_nll": "06_inference.ipynb",
-         "likelihood_from_updw": "06_inference.ipynb"}
+         "likelihood_from_updw": "06_inference.ipynb",
+         "calc_profile_nll_random": "06_inference.ipynb",
+         "likelihood_from_updw_random": "06_inference.ipynb"}
 
 modules = ["pseudodata.py",
            "model_wrapper.py",
