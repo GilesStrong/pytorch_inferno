@@ -141,6 +141,7 @@ def likelihood_from_updw(f_s:Tensor, f_b_nom:Tensor, f_b_up:Tensor, f_b_dw:Tenso
 # Cell
 def calc_profile_nll_random(s_true:float, b_true:float, s_exp:float, f_s:Tensor, alpha:Tensor,
                             f_b_nom:Tensor, f_b_up:Tensor, f_b_dw:Tensor, n_steps:int=100, lr:float=0.1) -> Tuple[Tensor,Tensor]:
+    '''Only for testing'''
     get_nll = partialler(calc_nll, s_true=s_true, b_true=b_true, s_exp=s_exp,
                          f_s=f_s, f_b_nom=f_b_nom, f_b_up=f_b_up, f_b_dw=f_b_dw)
     uni = torch.distributions.Uniform(-2,2)
@@ -153,7 +154,8 @@ def calc_profile_nll_random(s_true:float, b_true:float, s_exp:float, f_s:Tensor,
 
 # Cell
 def likelihood_from_updw_random(f_s:Tensor, f_b_nom:Tensor, f_b_up:Tensor, f_b_dw:Tensor, n:int=1050,
-                         mu_scan:np.ndarray=np.linspace(20,80,61), true_mu=50, n_steps:int=100, lr:float=0.1) -> np.ndarray:
+                                mu_scan:np.ndarray=np.linspace(20,80,61), true_mu=50, n_steps:int=100, lr:float=0.1) -> np.ndarray:
+    '''Only for testing'''
     alpha = torch.zeros((1,f_b_up.shape[0]), requires_grad=True)
     opt = partialler(calc_profile_nll_random, s_true=true_mu, b_true=n-true_mu, f_s=f_s, alpha=alpha,
                      f_b_nom=f_b_nom, f_b_up=f_b_up, f_b_dw=f_b_dw, n_steps=n_steps, lr=lr)

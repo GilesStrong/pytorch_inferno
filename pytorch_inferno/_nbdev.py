@@ -40,7 +40,8 @@ index = {"PseudoData": "00_pseudodata.ipynb",
          "calc_profile_nll": "06_inference.ipynb",
          "likelihood_from_updw": "06_inference.ipynb",
          "calc_profile_nll_random": "06_inference.ipynb",
-         "likelihood_from_updw_random": "06_inference.ipynb"}
+         "likelihood_from_updw_random": "06_inference.ipynb",
+         "VariableSoftmax": "07_inferno.ipynb"}
 
 modules = ["pseudodata.py",
            "model_wrapper.py",
@@ -48,7 +49,8 @@ modules = ["pseudodata.py",
            "callback.py",
            "utils.py",
            "plotting.py",
-           "inference.py"]
+           "inference.py",
+           "inferno.py"]
 
 doc_url = "https://GilesStrong.github.io/pytorch_inferno/"
 
