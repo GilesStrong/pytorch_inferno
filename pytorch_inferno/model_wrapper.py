@@ -8,7 +8,7 @@ from .utils import to_device, device
 from .data import DataPair, WeightedDataLoader, DataSet
 
 from typing import Optional, Union, List, Generator, Callable
-from fastcore.all import store_attr, is_listy, typedispatch
+from fastcore.all import store_attr, is_listy, typedispatch, Path
 from fastprogress import master_bar, progress_bar
 import numpy as np
 
@@ -52,8 +52,8 @@ class ModelWrapper():
             self.model.eval()
             self.state = 'valid'
             for c in self.cbs: c.on_epoch_begin()
-            with torch.no_grad():
-                for b in progress_bar(self.data.val_dl, parent=self.mb): self._fit_batch(*b)
+#             with torch.no_grad():
+            for b in progress_bar(self.data.val_dl, parent=self.mb): self._fit_batch(*b)
             for c in self.cbs: c.on_epoch_end()
 
         if cbs is None: cbs = []
@@ -90,3 +90,10 @@ class ModelWrapper():
                 cbs:Optional[Union[AbsCallback,List[AbsCallback]]]=None) -> np.ndarray:
         if isinstance(x, WeightedDataLoader): return self._predict_dl(x, pred_cb, cbs)
         else:                                 return self._predict_array(x, pred_cb, cbs)
+
+    def save(self, fname:Union[Path,str]) -> None: torch.save({'model':self.model.state_dict()}, fname)
+
+    def load(self, fname:Union[Path,str]) -> None:
+        state = torch.load(fname, map_location='cpu')
+        self.model.load_state_dict(state['model'])
+        self.model = to_device(self.model, device)
