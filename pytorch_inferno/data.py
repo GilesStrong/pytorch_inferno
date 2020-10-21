@@ -64,7 +64,7 @@ def get_paper_data(n:int, bm:int, bs=2000, n_test:int=0) -> Union[DataPair,Tuple
     val = (np.vstack((sig_val[0],bkg_val[0])),np.vstack((sig_val[1],bkg_val[1])))
 
     trn_dl = WeightedDataLoader(DataSet(*trn), batch_size=bs, shuffle=True, drop_last=True)
-    val_dl = WeightedDataLoader(DataSet(*val), batch_size=2*bs)
+    val_dl = WeightedDataLoader(DataSet(*val), batch_size=2*bs, shuffle=True)
     data = DataPair(trn_dl, val_dl)
     if n_test <= 0: return data
 

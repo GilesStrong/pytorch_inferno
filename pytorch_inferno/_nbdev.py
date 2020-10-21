@@ -13,6 +13,7 @@ index = {"PseudoData": "00_pseudodata.ipynb",
          "AbsCallback": "03_callback.ipynb",
          "LossTracker": "03_callback.ipynb",
          "EarlyStopping": "03_callback.ipynb",
+         "SaveBest": "03_callback.ipynb",
          "PredHandler": "03_callback.ipynb",
          "PaperSystMod": "03_callback.ipynb",
          "GradClip": "03_callback.ipynb",
@@ -39,7 +40,8 @@ index = {"PseudoData": "00_pseudodata.ipynb",
          "calc_profile": "06_inference.ipynb",
          "VariableSoftmax": "07_inferno.ipynb",
          "AbsInferno": "07_inferno.ipynb",
-         "PaperInferno": "07_inferno.ipynb"}
+         "PaperInferno": "07_inferno.ipynb",
+         "InfernoPred": "07_inferno.ipynb"}
 
 modules = ["pseudodata.py",
            "model_wrapper.py",

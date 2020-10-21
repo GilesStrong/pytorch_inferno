@@ -5,7 +5,7 @@ __all__ = ['bin_preds', 'get_shape', 'get_paper_syst_shapes', 'get_likelihood_wi
 
 # Cell
 from .model_wrapper import ModelWrapper
-from .callback import PaperSystMod
+from .callback import PaperSystMod, PredHandler
 
 import pandas as pd
 import numpy as np
@@ -30,13 +30,13 @@ def get_shape(df:pd.DataFrame, targ:int, pred_name:str='pred_bin') -> Tensor:
     f = df.loc[df.gen_target == targ, pred_name].value_counts()
     f.sort_index(inplace=True)
     f /= f.sum()
-    return Tensor(f)
+    return Tensor(f.values)
 
 # Cell
-def get_paper_syst_shapes(bkg_data:np.ndarray, df:pd.DataFrame, model:ModelWrapper,
-                    r_vals:Tuple[float,float,float]=[-0.2,0,0.2], l_vals:Tuple[float]=[2.5,3,3.5]) -> OrderedDict:
+def get_paper_syst_shapes(bkg_data:np.ndarray, df:pd.DataFrame, model:ModelWrapper, pred_cb:Optional[PredHandler]=None,
+                          r_vals:Tuple[float,float,float]=[-0.2,0,0.2], l_vals:Tuple[float]=[2.5,3,3.5]) -> OrderedDict:
     def _get_shape(r,l):
-        bp = model.predict(bkg_data, cbs=PaperSystMod(r=r,l=l))
+        bp = model.predict(bkg_data, pred_cb=pred_cb, cbs=PaperSystMod(r=r,l=l))
         n = f'pred_{r}_{l}'
         df[n] = df.pred
         df.loc[df.gen_target == 0, n] = bp
@@ -57,7 +57,7 @@ def get_paper_syst_shapes(bkg_data:np.ndarray, df:pd.DataFrame, model:ModelWrapp
 # Cell
 def get_likelihood_width(nll:np.ndarray, mu_scan:np.ndarray, val:float=0.5) -> float:
     r = InterpolatedUnivariateSpline(mu_scan, nll-val-nll.min()).roots()
-    if len(r) == 0: raise ValueError(f'No roots found at {val}, set val to a smaller value.')
+    if len(r) != 2: raise ValueError(f'No roots found at {val}, set val to a smaller value.')
     return (r[1]-r[0])/2
 
 # Cell
@@ -74,8 +74,8 @@ def interp_shape(alpha:Tensor, f_b_nom:Tensor, f_b_up:Tensor, f_b_dw:Tensor):
     return (f_b_nom + abs_var.sum(1, keepdim=True)).squeeze(1)
 
 # Cell
-def calc_nll(s_true:float, b_true:float, s_exp:float, f_s:Tensor, alpha:Tensor,
-                      f_b_nom:Tensor, f_b_up:Tensor, f_b_dw:Tensor) -> Tensor:
+def calc_nll(s_true:float, b_true:float, s_exp:Tensor, f_s:Tensor, alpha:Tensor,
+             f_b_nom:Tensor, f_b_up:Tensor, f_b_dw:Tensor) -> Tensor:
     f_b = interp_shape(alpha, f_b_nom, f_b_up, f_b_dw)
     t_exp = (s_exp[:,None]*f_s[None,])+(b_true*f_b)
     asimov = (s_true*f_s)+(b_true*f_b_nom)
@@ -85,13 +85,13 @@ def calc_nll(s_true:float, b_true:float, s_exp:float, f_s:Tensor, alpha:Tensor,
 # Cell
 def calc_grad_hesse(nll:Tensor, alpha:Tensor) -> Tuple[Tensor,Tensor]:
     grad = autograd.grad(nll, alpha, torch.ones_like(nll, device=nll.device), create_graph=True)[0]
-    hesse = autograd.grad(grad, alpha, torch.ones_like(alpha, device=nll.device))[0]
+    hesse = autograd.grad(grad, alpha, torch.ones_like(alpha, device=nll.device), create_graph=True, retain_graph=True)[0]
     alpha.grad=None
     return grad, hesse
 
 # Cell
 def calc_profile(f_s:Tensor, f_b_nom:Tensor, f_b_up:Tensor, f_b_dw:Tensor, n:int,
-                          mu_scan:Tensor, true_mu:int, n_steps:int=100, lr:float=0.1,  verbose:bool=True) -> Tensor:
+                 mu_scan:Tensor, true_mu:int, n_steps:int=100, lr:float=0.1,  verbose:bool=True) -> Tensor:
     alpha = torch.zeros((len(mu_scan),f_b_up.shape[0]), requires_grad=True, device=f_b_nom.device)
     f_b_nom = f_b_nom.unsqueeze(0)
     get_nll = partialler(calc_nll, s_true=true_mu, b_true=n-true_mu, s_exp=mu_scan,
