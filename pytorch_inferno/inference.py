@@ -22,27 +22,27 @@ import torch
 from torch import autograd
 
 # Cell
-def bin_preds(df:pd.DataFrame, bins:np.ndarray=np.linspace(0.,1.,11), pred_name='pred') -> None:
+def bin_preds(df:pd.DataFrame, bins:np.ndarray=np.linspace(0.,10.,11), pred_name='pred') -> None:
     df[f'{pred_name}_bin'] = np.digitize(df[pred_name], bins)-1
 
 # Cell
-def get_shape(df:pd.DataFrame, targ:int, pred_name:str='pred_bin') -> Tensor:
-    f = df.loc[df.gen_target == targ, pred_name].value_counts(bins=df[pred_name].max()+1)
+def get_shape(df:pd.DataFrame, targ:int, bins:np.ndarray=np.linspace(0.,10.,11), pred_name:str='pred_bin') -> Tensor:
+    f = df.loc[df.gen_target == targ, pred_name].value_counts(bins=bins)
     f.sort_index(inplace=True)
     f += 1e-7
     f /= f.sum()
     return Tensor(f.values)
 
 # Cell
-def get_paper_syst_shapes(bkg_data:np.ndarray, df:pd.DataFrame, model:ModelWrapper, pred_cb:Optional[PredHandler]=None,
+def get_paper_syst_shapes(bkg_data:np.ndarray, df:pd.DataFrame, model:ModelWrapper, bins:np.ndarray=np.linspace(0.,10.,11), pred_cb:PredHandler=PredHandler(),
                           r_vals:Tuple[float,float,float]=[-0.2,0,0.2], l_vals:Tuple[float]=[2.5,3,3.5]) -> OrderedDict:
     def _get_shape(r,l):
         bp = model.predict(bkg_data, pred_cb=pred_cb, cbs=PaperSystMod(r=r,l=l))
         n = f'pred_{r}_{l}'
         df[n] = df.pred
         df.loc[df.gen_target == 0, n] = bp
-        bin_preds(df, pred_name=n)
-        return get_shape(df, 0, f'{n}_bin')
+        bin_preds(df, pred_name=n, bins=bins)
+        return get_shape(df=df, targ=0, bins=np.linspace(0.,len(bins)-1,len(bins)), pred_name=f'{n}_bin')
 
     shapes = OrderedDict()
     for i,r in enumerate(r_vals):

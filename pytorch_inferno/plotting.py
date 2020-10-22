@@ -34,7 +34,8 @@ def plot_preds(df:pd.DataFrame, bin_edges:np.ndarray=np.linspace(0.,1.,11), pred
             hist_kws = {} if 'gen_weight' not in df.columns else {'weights':wgt_scale*df.loc[cut, 'gen_weight']}
             if t == 0:
                 for i,p in enumerate(pred_names):
-                    sns.distplot(df.loc[cut, p], bins=bin_edges, label=f'{n}_{p}' if i > 0 else n, norm_hist=True, kde=False,
+                    d = df.loc[cut, p]
+                    sns.distplot(d, bins=bin_edges, label=f'{n}_{p}' if i > 0 else n, norm_hist=True, kde=False,
                                  hist_kws={'fill':not i > 0, 'edgecolor':palette[i+1] if i > 0 else None,
                                            'linewidth':2 if i > 0 else 1, **hist_kws})
             else:
