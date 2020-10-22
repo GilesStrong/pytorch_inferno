@@ -17,10 +17,7 @@ class AbsInferno(AbsCallback):
         store_attr()
 
     def on_train_begin(self) -> None:
-        r'''
-        Fake loss function, callback computes loss in `on_forwards_end`
-        '''
-        self.wrapper.loss_func = lambda x,y: None
+        self.wrapper.loss_func = None  # Ensure loss function is skipped, callback computes loss value in `on_forwards_end`
         for c in self.wrapper.cbs:
             if hasattr(c, 'loss_is_meaned'): c.loss_is_meaned = False  # Ensure that average losses are correct
 
@@ -63,13 +60,13 @@ class PaperInferno(AbsInferno):
     def _get_up_down(self, x:Tensor) -> Tuple[Tensor,Tensor]:
         with torch.no_grad():
             u,d = [],[]
-            if r_mods is not None
+            if self.r_mods is not None:
                 x[:,0] += self.r_mods[0]
                 d.append(self._to_shape(self.wrapper.model(x)))
                 x[:,0] += self.r_mods[1]-self.r_mods[0]
                 u.append(self._to_shape(self.wrapper.model(x)))
                 x[:,0] -= self.r_mods[1]
-            if l_mods is not None
+            if self.l_mods is not None:
                 x[:,2] *= self.l_mods[0]
                 d.append(self._to_shape(self.wrapper.model(x)))
                 x[:,2] *= self.l_mods[1]/self.l_mods[0]

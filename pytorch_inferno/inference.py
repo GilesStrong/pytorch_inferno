@@ -27,8 +27,9 @@ def bin_preds(df:pd.DataFrame, bins:np.ndarray=np.linspace(0.,1.,11), pred_name=
 
 # Cell
 def get_shape(df:pd.DataFrame, targ:int, pred_name:str='pred_bin') -> Tensor:
-    f = df.loc[df.gen_target == targ, pred_name].value_counts()
+    f = df.loc[df.gen_target == targ, pred_name].value_counts(bins=df[pred_name].max()+1)
     f.sort_index(inplace=True)
+    f += 1e-7
     f /= f.sum()
     return Tensor(f.values)
 

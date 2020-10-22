@@ -26,7 +26,7 @@ class ModelWrapper():
         self.x,self.y,self.w = to_device(x,self.device),to_device(y,self.device),to_device(w,self.device)
         for c in self.cbs: c.on_batch_begin()
         self.y_pred = self.model(self.x)
-        if self.state != 'test':
+        if self.state != 'test' and self.loss_func is not None:
             self.loss_func.weights = self.w
             self.loss_val = self.loss_func(self.y_pred, self.y)
         for c in self.cbs: c.on_forwards_end()
@@ -40,7 +40,7 @@ class ModelWrapper():
         for c in self.cbs: c.on_batch_end()
 
     def fit(self, n_epochs:int, data:DataPair, opt:Callable[[Generator],optim.Optimizer],
-            loss:Callable[[Tensor,Tensor],Tensor], cbs:Optional[Union[AbsCallback,List[AbsCallback]]]=None) -> None:
+            loss:Optional[Callable[[Tensor,Tensor],Tensor]], cbs:Optional[Union[AbsCallback,List[AbsCallback]]]=None) -> None:
         def fit_epoch(epoch:int) -> None:
             self.model.train()
             self.state = 'train'
@@ -52,7 +52,6 @@ class ModelWrapper():
             self.model.eval()
             self.state = 'valid'
             for c in self.cbs: c.on_epoch_begin()
-#             with torch.no_grad():
             for b in progress_bar(self.data.val_dl, parent=self.mb): self._fit_batch(*b)
             for c in self.cbs: c.on_epoch_end()
 
