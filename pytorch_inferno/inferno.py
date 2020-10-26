@@ -35,8 +35,10 @@ class AbsInferno(AbsCallback):
             s = torch.clamp(self.lr*g.detach()/(h+1e-7), -100, 100)
             return g,h,s
 
-        alpha = torch.zeros((1,f_b_up.shape[0]), requires_grad=True, device=f_b_nom.device)
-        mu = torch.tensor([float(self.true_mu)-0.5], requires_grad=True, device=f_b_nom.device)
+#         alpha = torch.zeros((1,f_b_up.shape[0]), requires_grad=True, device=f_b_nom.device)
+#         mu = torch.tensor([float(self.true_mu)], requires_grad=True, device=f_b_nom.device)
+        alpha = torch.randn((1,f_b_up.shape[0]), requires_grad=True, device=f_b_nom.device)/10
+        mu = self.true_mu+torch.randn((1), requires_grad=True, device=f_b_nom.device)/10
         get_nll = partialler(calc_nll, s_true=self.true_mu, b_true=self.n-self.true_mu,
                              f_s=f_s, f_b_nom=f_b_nom[None,:], f_b_up=f_b_up, f_b_dw=f_b_dw)
         for i in range(self.n_steps):  # Newton optimise nuisances & mu
@@ -46,7 +48,7 @@ class AbsInferno(AbsCallback):
             alpha = alpha-s
             g,h,s = get_ghs(nll,mu)
             mu = mu-s
-#         print('mu hessian', h.data)
+#             print(i, 'mu hessian', h.data)
         return h
 
     def on_forwards_end(self) -> None:
