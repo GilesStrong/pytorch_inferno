@@ -39,10 +39,8 @@ index = {"PseudoData": "00_pseudodata.ipynb",
          "jacobian": "06_inference.ipynb",
          "calc_grad_hesse": "06_inference.ipynb",
          "calc_profile": "06_inference.ipynb",
-         "VariableSoftmax": "07_inferno.ipynb",
-         "AbsInferno": "07_inferno.ipynb",
-         "PaperInferno": "07_inferno.ipynb",
-         "InfernoPred": "07_inferno.ipynb"}
+         "VariableSoftmax": "07_inferno_interp.ipynb",
+         "InfernoPred": "07_inferno_interp.ipynb"}
 
 modules = ["pseudodata.py",
            "model_wrapper.py",

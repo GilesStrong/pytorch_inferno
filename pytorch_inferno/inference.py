@@ -76,8 +76,8 @@ def interp_shape(alpha:Tensor, f_b_nom:Tensor, f_b_up:Tensor, f_b_dw:Tensor):
 
 # Cell
 def calc_nll(s_true:float, b_true:float, s_exp:Tensor, f_s:Tensor, alpha:Tensor,
-             f_b_nom:Tensor, f_b_up:Tensor, f_b_dw:Tensor) -> Tensor:
-    f_b = interp_shape(alpha, f_b_nom, f_b_up, f_b_dw)
+             f_b_nom:Tensor, f_b_up:Optional[Tensor], f_b_dw:Optional[Tensor]) -> Tensor:
+    f_b = interp_shape(alpha, f_b_nom, f_b_up, f_b_dw) if f_b_up is not None and f_b_dw is not None else f_b_nom
     t_exp = (s_exp*f_s)+(b_true*f_b)
     asimov = (s_true*f_s)+(b_true*f_b_nom)
     p = torch.distributions.Poisson(t_exp)
