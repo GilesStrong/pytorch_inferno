@@ -19,6 +19,7 @@ from torch import optim
 
 # Cell
 class ModelWrapper():
+    r'''Class to handle training and prediction of NN over data, with optional callbacks. Also supports loading and saving.'''
     def __init__(self, model:nn.Module, device:torch.device=device):
         self.model,self.device = to_device(model, device),device
 

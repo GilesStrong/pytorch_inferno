@@ -23,10 +23,12 @@ from torch import autograd
 
 # Cell
 def bin_preds(df:pd.DataFrame, bins:np.ndarray=np.linspace(0.,10.,11), pred_name='pred') -> None:
+    '''Bins predictions over specified range'''
     df[f'{pred_name}_bin'] = np.digitize(df[pred_name], bins)-1
 
 # Cell
 def get_shape(df:pd.DataFrame, targ:int, bins:np.ndarray=np.linspace(0.,10.,11), pred_name:str='pred_bin') -> Tensor:
+    r'''Extracts normalised shape of class from binned predictions. Empty bins are filled with a small quantity to avoid zeros.'''
     f = df.loc[df.gen_target == targ, pred_name].value_counts(bins=bins)
     f.sort_index(inplace=True)
     f += 1e-7
@@ -36,6 +38,7 @@ def get_shape(df:pd.DataFrame, targ:int, bins:np.ndarray=np.linspace(0.,10.,11),
 # Cell
 def get_paper_syst_shapes(bkg_data:np.ndarray, df:pd.DataFrame, model:ModelWrapper, bins:np.ndarray=np.linspace(0.,10.,11), pred_cb:PredHandler=PredHandler(),
                           r_vals:Tuple[float,float,float]=[-0.2,0,0.2], l_vals:Tuple[float]=[2.5,3,3.5]) -> OrderedDict:
+    r'''Pass background data through trained model in order to get up/down shape variations.'''
     def _get_shape(r,l):
         bp = model.predict(bkg_data, pred_cb=pred_cb, cbs=PaperSystMod(r=r,l=l))
         n = f'pred_{r}_{l}'
@@ -57,26 +60,31 @@ def get_paper_syst_shapes(bkg_data:np.ndarray, df:pd.DataFrame, model:ModelWrapp
 
 # Cell
 def get_likelihood_width(nll:np.ndarray, mu_scan:np.ndarray, val:float=0.5) -> float:
+    r'''Compute width of likelihood at 95% confidence-level'''
     r = InterpolatedUnivariateSpline(mu_scan, nll-val-nll.min()).roots()
     if len(r) != 2: raise ValueError(f'No roots found at {val}, set val to a smaller value.')
     return (r[1]-r[0])/2
 
 # Cell
 def interp_shape(alpha:Tensor, f_b_nom:Tensor, f_b_up:Tensor, f_b_dw:Tensor):
+    r'''Use quadratic interpolation between up/down systematic shapes and nominal in order to estimate shapes at arbitrary nuisance values.
+    Linear extrapolation for absolute nuisances values greater than 1 (outside up/down shape range).
+    Does not account for co-dependence of nuisances.
+    Adapted from https://github.com/pablodecm/paper-inferno/blob/master/code/template_model.py under BSD 3-clause licence Copyright (c) 2018, Pablo de Castro, Tommaso Dorigo'''
     alpha_t = torch.repeat_interleave(alpha.unsqueeze(-1), repeats=f_b_nom.shape[-1], dim=-1)
     a = 0.5*(f_b_up+f_b_dw)[None,:]-f_b_nom
     b = 0.5*(f_b_up-f_b_dw)[None,:]
 
-    switch = torch.where(alpha_t < 0., f_b_dw - f_b_nom, f_b_up - f_b_nom)
+    switch = torch.where(alpha_t < 0., f_b_dw-f_b_nom, f_b_up-f_b_nom)
     abs_var = torch.where(torch.abs(alpha_t) > 1.,
-                          (2 * b + torch.sign(alpha_t) * a) *
-                          (alpha_t - torch.sign(alpha_t)) + switch,
+                          (b+(torch.sign(alpha_t)*a))*(alpha_t-torch.sign(alpha_t))+switch,
                           a*torch.pow(alpha_t, 2)+ b * alpha_t)
     return (f_b_nom + abs_var.sum(1, keepdim=True)).squeeze(1)
 
 # Cell
-def calc_nll(s_true:float, b_true:float, s_exp:Tensor, f_s:Tensor, alpha:Tensor,
+def calc_nll(s_true:float, b_true:float, s_exp:float, f_s:Tensor, alpha:Tensor,
              f_b_nom:Tensor, f_b_up:Optional[Tensor], f_b_dw:Optional[Tensor]) -> Tensor:
+    r'''Compute negative log-likelihood for specified parameters.'''
     f_b = interp_shape(alpha, f_b_nom, f_b_up, f_b_dw) if f_b_up is not None and f_b_dw is not None else f_b_nom
     t_exp = (s_exp*f_s)+(b_true*f_b)
     asimov = (s_true*f_s)+(b_true*f_b_nom)
@@ -85,10 +93,9 @@ def calc_nll(s_true:float, b_true:float, s_exp:Tensor, f_s:Tensor, alpha:Tensor,
 
 # Cell
 def jacobian(y:Tensor, x:Tensor, create_graph=False):
-    r'''
+    r'''Compute full jacobian matrix for single tensor. Call twice for hessian.
     Copied from https://gist.github.com/apaszke/226abdf867c4e9d6698bd198f3b45fb7 credits: Adam Paszke
-    TODO: Fix this to work batch-wise (maybe https://gist.github.com/sbarratt/37356c46ad1350d4c30aefbd488a4faa)
-    '''
+    TODO: Fix this to work batch-wise (maybe https://gist.github.com/sbarratt/37356c46ad1350d4c30aefbd488a4faa)'''
     jac = []
     flat_y = y.reshape(-1)
     grad_y = torch.zeros_like(flat_y)
@@ -101,15 +108,17 @@ def jacobian(y:Tensor, x:Tensor, create_graph=False):
 
 # Cell
 def calc_grad_hesse(nll:Tensor, alpha:Tensor, create_graph:bool=False) -> Tuple[Tensor,Tensor]:
+    r'''Compute full hessian and jacobian for single tensor'''
     grad = jacobian(nll, alpha, create_graph=True)
     hesse = jacobian(grad, alpha, create_graph=create_graph)
-    alpha.grad=None
     return grad, hesse
 
 # Cell
 def calc_profile(f_s:Tensor, f_b_nom:Tensor, f_b_up:Tensor, f_b_dw:Tensor, n:int,
                  mu_scan:Tensor, true_mu:int, n_steps:int=100, lr:float=0.1,  verbose:bool=True) -> Tensor:
-    '''TODO: Fix this to run mu-scan in parallel'''
+    r'''Compute profile likelihoods for range of mu values, optimising on full hessian.
+    Ideally mu-values should be computed in parallel, but batch-wise hessian in PyTorch is difficult.
+    TODO: Fix this to run mu-scan in parallel'''
     f_b_nom = f_b_nom.unsqueeze(0)
     get_nll = partialler(calc_nll, s_true=true_mu, b_true=n-true_mu, f_s=f_s, f_b_nom=f_b_nom, f_b_up=f_b_up, f_b_dw=f_b_dw)
     nlls = []
@@ -122,4 +131,5 @@ def calc_profile(f_s:Tensor, f_b_nom:Tensor, f_b_up:Tensor, f_b_dw:Tensor, n:int
             step = torch.clamp(step, -100, 100)
             alpha = alpha-step
         nlls.append(get_nll(alpha=alpha, s_exp=mu))
+        if alpha.abs().max() > 1: print(f'Linear regime: Mu {mu.data.item()}, alpha {alpha.data}')
     return torch.stack(nlls)

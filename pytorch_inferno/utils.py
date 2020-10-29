@@ -45,6 +45,7 @@ def to_np(x:Tensor) -> np.ndarray:
 
 # Cell
 def init_net(model:nn.Module):
+    r'''Recursively initialise fully-connected ReLU network with Kaiming and zero bias'''
     if isinstance(model,nn.Linear):
         init.kaiming_normal_(model.weight, nonlinearity='relu')
         init.zeros_(model.bias)

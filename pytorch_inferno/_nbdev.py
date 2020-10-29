@@ -4,7 +4,7 @@ __all__ = ["index", "modules", "custom_doc_links", "git_url"]
 
 index = {"PseudoData": "00_pseudodata.ipynb",
          "paper_sig": "00_pseudodata.ipynb",
-         "paper_bkg_bm0": "00_pseudodata.ipynb",
+         "paper_bkg": "00_pseudodata.ipynb",
          "ModelWrapper": "01_model_wrapper.ipynb",
          "DataSet": "02_data.ipynb",
          "WeightedDataLoader": "02_data.ipynb",

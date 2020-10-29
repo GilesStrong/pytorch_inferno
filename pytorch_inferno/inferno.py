@@ -4,6 +4,7 @@ __all__ = ['VariableSoftmax', 'InfernoPred', 'VariableSoftmax', 'InfernoPred']
 
 # Cell
 class VariableSoftmax(nn.Softmax):
+    r'''Softmax with temperature'''
     def __init__(self, temp:float=1, dim:int=-1):
         super().__init__(dim=dim)
         self.temp = temp
@@ -12,10 +13,12 @@ class VariableSoftmax(nn.Softmax):
 
 # Cell
 class InfernoPred(PredHandler):
-    def get_preds(self) -> np.ndarray: return np.argmax(self.preds, 1)#/len(self.wrapper.model[-2].weight)
+    r'''Prediction handler for hard assignments'''
+    def get_preds(self) -> np.ndarray: return np.argmax(self.preds, 1)
 
 # Cell
 class VariableSoftmax(nn.Softmax):
+    r'''Softmax with temperature'''
     def __init__(self, temp:float=1, dim:int=-1):
         super().__init__(dim=dim)
         self.temp = temp
@@ -24,4 +27,5 @@ class VariableSoftmax(nn.Softmax):
 
 # Cell
 class InfernoPred(PredHandler):
-    def get_preds(self) -> np.ndarray: return np.argmax(self.preds, 1)#/len(self.wrapper.model[-2].weight)
+    r'''Prediction handler for hard assignments'''
+    def get_preds(self) -> np.ndarray: return np.argmax(self.preds, 1)

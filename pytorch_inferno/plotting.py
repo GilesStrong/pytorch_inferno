@@ -26,6 +26,7 @@ plt_leg_sz   = 16
 
 # Cell
 def plot_preds(df:pd.DataFrame, bin_edges:np.ndarray=np.linspace(0.,1.,11), pred_names:Union[List[str],str]='pred') -> None:
+    r'''Plots predictions and background variations'''
     if not is_listy(pred_names): pred_names = [pred_names]
     with sns.axes_style(**plt_style), sns.color_palette(plt_cat_pal) as palette:
         plt.figure(figsize=(plt_sz*16/9, plt_sz))
@@ -49,6 +50,7 @@ def plot_preds(df:pd.DataFrame, bin_edges:np.ndarray=np.linspace(0.,1.,11), pred
 
 # Cell
 def plot_likelihood(nll:np.ndarray, mu_scan:np.ndarray=np.linspace(20,80,61)) -> None:
+    r'''Plots delta likelihood and computes width'''
     with sns.axes_style(**plt_style), sns.color_palette(plt_cat_pal) as palette:
         plt.figure(figsize=(plt_sz*16/9, plt_sz))
         m = mu_scan[np.argmin(nll)]

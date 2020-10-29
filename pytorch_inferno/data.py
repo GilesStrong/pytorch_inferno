@@ -3,6 +3,8 @@
 __all__ = ['DataSet', 'WeightedDataLoader', 'DataPair', 'get_paper_data']
 
 # Cell
+from .pseudodata import paper_sig, paper_bkg, PseudoData
+
 from torch.utils.data import DataLoader
 import torch
 from torch import Tensor
@@ -13,6 +15,7 @@ import numpy as np
 
 # Cell
 class DataSet():
+    r'''Class holding indexable input, target and weight data'''
     def __init__(self, x:np.ndarray, y:Optional[np.ndarray]=None, w:Optional[np.ndarray]=None): store_attr()
     def __len__(self) -> int: return len(self.x)
     def __getitem__(self, i:int) -> Tuple[Tensor,Optional[Tensor],Optional[Tensor]]:
@@ -22,6 +25,7 @@ class DataSet():
 
 # Cell
 class WeightedDataLoader(DataLoader):
+    r'''PyTorch DataLoader with support for optional weights and targets'''
     @delegates(DataLoader, but=['collate_fn'])
     def __init__(self, dataset, **kwargs): super().__init__(dataset, collate_fn=self.collate_fn, **kwargs)
 
@@ -35,6 +39,7 @@ class WeightedDataLoader(DataLoader):
 
 # Cell
 class DataPair():
+    r'''Single class of training and validation data to simplify passing data for model training'''
     def __init__(self, trn_dl:WeightedDataLoader, val_dl:WeightedDataLoader): store_attr()
 
     @property
@@ -44,21 +49,13 @@ class DataPair():
     def val_ds(self): return self.val_dl.dataset
 
 # Cell
-from .pseudodata import *  # noqa F304
-
-# Cell
-def get_paper_data(n:int, bm:int, bs=2000, n_test:int=0) -> Union[DataPair,Tuple[DataPair,WeightedDataLoader]]:
-    if   bm == 0: bm = paper_bkg_bm0
-    elif bm == 1: bm = paper_bkg_bm1
-    elif bm == 2: bm = paper_bkg_bm2
-    elif bm == 3: bm = paper_bkg_bm3
-    elif bm == 4: bm = paper_bkg_bm4
-
+def get_paper_data(n:int, bs=2000, n_test:int=0) -> Union[DataPair,Tuple[DataPair,WeightedDataLoader]]:
+    r'''Function returning training, validation and testing data according to pseudodata used in INFERNO paper'''
     n,n_test = n//2,n_test//2
     sig_trn = PseudoData(paper_sig, 1).sample(n)
-    bkg_trn = PseudoData(bm, 0).sample(n)
+    bkg_trn = PseudoData(paper_bkg, 0).sample(n)
     sig_val = PseudoData(paper_sig, 1).sample(n)
-    bkg_val = PseudoData(bm, 0).sample(n)
+    bkg_val = PseudoData(paper_bkg, 0).sample(n)
 
     trn = (np.vstack((sig_trn[0],bkg_trn[0])),np.vstack((sig_trn[1],bkg_trn[1])))
     val = (np.vstack((sig_val[0],bkg_val[0])),np.vstack((sig_val[1],bkg_val[1])))
@@ -69,7 +66,7 @@ def get_paper_data(n:int, bm:int, bs=2000, n_test:int=0) -> Union[DataPair,Tuple
     if n_test <= 0: return data
 
     sig_tst = PseudoData(paper_sig, 1).sample(n_test)
-    bkg_tst = PseudoData(bm, 0).sample(n_test)
+    bkg_tst = PseudoData(paper_bkg, 0).sample(n_test)
     tst = (np.vstack((sig_tst[0],bkg_tst[0])),np.vstack((sig_tst[1],bkg_tst[1])))
     tst_dl = WeightedDataLoader(DataSet(*tst), batch_size=2*bs)
     return data, tst_dl
