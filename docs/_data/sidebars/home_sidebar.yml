@@ -7,24 +7,36 @@ entries:
 - folders:
   - folderitems:
     - output: web,pdf
-      title: Export to modules
-      url: /export.html
+      title: Overview
+      url: /
     - output: web,pdf
-      title: Convert to html
-      url: /export2html.html
+      title: pseudodata
+      url: pseudodata.html
     - output: web,pdf
-      title: Show doc
-      url: /showdoc.html
+      title: model wrapper
+      url: model_wrapper.html
     - output: web,pdf
-      title: Test functions
-      url: /test.html
+      title: Data
+      url: data.html
     - output: web,pdf
-      title: Core functions
-      url: /core.html
+      title: Callback
+      url: callback.html
     - output: web,pdf
-      title: Command line functions
-      url: /cli.html
+      title: Utils
+      url: utils.html
+    - output: web,pdf
+      title: Plotting
+      url: plotting.html
+    - output: web,pdf
+      title: Inference
+      url: inference.html
+    - output: web,pdf
+      title: INFERNO loss
+      url: inferno_interp.html
+    - output: web,pdf
+      title: BCE classifier
+      url: BCE_test.html
     output: web
-    title: Notebook
+    title: pytorch_inferno
   output: web
   title: Sidebar

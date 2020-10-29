@@ -1,10 +1,14 @@
 {
-  "Notebook": {
-    "Export to modules": "/export",
-    "Convert to html": "/export2html",
-    "Show doc": "/showdoc",
-    "Test functions": "/test",
-    "Core functions": "/core",
-    "Command line functions": "/cli"
+  "pytorch_inferno": {
+    "Overview": "/",
+    "pseudodata": "pseudodata.html",
+    "model wrapper": "model_wrapper.html",
+    "Data": "data.html",
+    "Callback": "callback.html",
+    "Utils": "utils.html",
+    "Plotting": "plotting.html",
+    "Inference": "inference.html",
+    "INFERNO loss": "inferno_interp.html",
+    "BCE classifier": "BCE_test.html"
   }
 }

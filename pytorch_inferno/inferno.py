@@ -3,6 +3,14 @@
 __all__ = ['VariableSoftmax', 'InfernoPred', 'VariableSoftmax', 'InfernoPred']
 
 # Cell
+from .callback import PredHandler
+
+import numpy as np
+
+import torch.nn as nn
+from torch import Tensor
+
+# Cell
 class VariableSoftmax(nn.Softmax):
     r'''Softmax with temperature'''
     def __init__(self, temp:float=1, dim:int=-1):
@@ -15,6 +23,14 @@ class VariableSoftmax(nn.Softmax):
 class InfernoPred(PredHandler):
     r'''Prediction handler for hard assignments'''
     def get_preds(self) -> np.ndarray: return np.argmax(self.preds, 1)
+
+# Cell
+from .callback import PredHandler
+
+import numpy as np
+
+import torch.nn as nn
+from torch import Tensor
 
 # Cell
 class VariableSoftmax(nn.Softmax):
