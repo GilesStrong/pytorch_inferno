@@ -75,7 +75,7 @@ class PaperInferno(AbsInferno):
     def __init__(self, r_mods:Optional[Tuple[float,float]]=(-0.2,0.2), l_mods:Optional[Tuple[float,float]]=(2.5,3.5), l_init:float=3,
                  n:int=1050, true_mu:int=50, aug_alpha:bool=False, n_steps:int=10, lr:float=0.1):
         r'''Inheriting class for dealing with INFERNO paper synthetic problem'''
-        super().__init__(n=n, mu_scan=mu_scan, true_mu=true_mu, aug_alpha=aug_alpha, n_alphas=(r_mods is not None)+(l_mods is not None), n_steps=n_steps, lr=lr)
+        super().__init__(n=n, true_mu=true_mu, aug_alpha=aug_alpha, n_alphas=(r_mods is not None)+(l_mods is not None), n_steps=n_steps, lr=lr)
         self.r_mods,self.l_mods,self.l_init = r_mods,l_mods,l_init
 
     def on_train_begin(self) -> None:
