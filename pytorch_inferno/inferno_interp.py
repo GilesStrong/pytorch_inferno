@@ -3,9 +3,11 @@
 __all__ = ['VariableSoftmax', 'AbsInferno', 'PaperInferno', 'InfernoPred']
 
 # Cell
-from .callback import PredHandler
+from .callback import AbsCallback, PredHandler
 
 import numpy as np
+from abc import abstractmethod
+from typing import Tuple, Optional
 
 import torch.nn as nn
 from torch import Tensor

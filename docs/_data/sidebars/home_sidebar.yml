@@ -31,7 +31,10 @@ entries:
       title: Inference
       url: inference.html
     - output: web,pdf
-      title: INFERNO loss
+      title: Exact INFERNO loss
+      url: inferno_exact.html
+    - output: web,pdf
+      title: Interpolation INFERNO loss
       url: inferno_interp.html
     - output: web,pdf
       title: BCE classifier

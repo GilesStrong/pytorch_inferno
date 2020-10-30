@@ -40,9 +40,9 @@ index = {"PseudoData": "00_pseudodata.ipynb",
          "calc_grad_hesse": "06_inference.ipynb",
          "calc_profile": "06_inference.ipynb",
          "VariableSoftmax": "07_inferno_interp.ipynb",
+         "InfernoPred": "07_inferno_interp.ipynb",
          "AbsInferno": "07_inferno_interp.ipynb",
-         "PaperInferno": "07_inferno_interp.ipynb",
-         "InfernoPred": "07_inferno_interp.ipynb"}
+         "PaperInferno": "07_inferno_interp.ipynb"}
 
 modules = ["pseudodata.py",
            "model_wrapper.py",
@@ -51,7 +51,7 @@ modules = ["pseudodata.py",
            "utils.py",
            "plotting.py",
            "inference.py",
-           "inferno_exact.py",
+           "inferno.py",
            "inferno_interp.py"]
 
 doc_url = "https://GilesStrong.github.io/pytorch_inferno/"
