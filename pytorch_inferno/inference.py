@@ -29,7 +29,7 @@ def bin_preds(df:pd.DataFrame, bins:np.ndarray=np.linspace(0.,10.,11), pred_name
 # Cell
 def get_shape(df:pd.DataFrame, targ:int, bins:np.ndarray=np.linspace(0.,10.,11), pred_name:str='pred_bin') -> Tensor:
     r'''Extracts normalised shape of class from binned predictions. Empty bins are filled with a small quantity to avoid zeros.'''
-    f = df.loc[df.gen_target == targ, pred_name].value_counts(bins=bins)
+    f = df.loc[df.gen_target == targ, pred_name].value_counts(bins=bins-(1/len(bins)))
     f.sort_index(inplace=True)
     f += 1e-7
     f /= f.sum()
