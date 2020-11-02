@@ -33,7 +33,7 @@ class AbsInferno(AbsCallback):
         self.wrapper.loss_func = None  # Ensure loss function is skipped, callback computes loss value in `on_forwards_end`
         for c in self.wrapper.cbs:
             if hasattr(c, 'loss_is_meaned'): c.loss_is_meaned = False  # Ensure that average losses are correct
-        self.alpha = torch.zeros((self.n_alphas+1), requires_grad=True, device=self.wrapper.device)  #  Nuisances set to zero (true values)
+        self.alpha = torch.zeros((self.n_alphas+1), requires_grad=True, device=self.wrapper.device)  # Nuisances set to zero (true values)
         with torch.no_grad(): self.alpha[0] = self.true_mu  # POI set to true value
 
     def on_batch_begin(self) -> None:

@@ -29,6 +29,7 @@ class AbsInferno(AbsCallback):
     def __init__(self, n:int, true_mu:float, aug_alpha:bool=False, n_alphas:int=0, n_steps:int=100, lr:float=0.1):
         super().__init__()
         store_attr()
+        self.true_b = self.n-self.true_mu
 
     def on_train_begin(self) -> None:
         self.wrapper.loss_func = None  # Ensure loss function is skipped, callback computes loss value in `on_forwards_end`
@@ -50,8 +51,8 @@ class AbsInferno(AbsCallback):
         if self.aug_alpha: alpha = torch.randn((self.n_alphas+1), requires_grad=True, device=self.wrapper.device)/10
         else:              alpha = torch.zeros((self.n_alphas+1), requires_grad=True, device=self.wrapper.device)
         with torch.no_grad(): alpha[0] += self.true_mu
-        get_nll = partialler(calc_nll, s_true=self.true_mu, b_true=self.n-self.true_mu,
-                             f_s=f_s, f_b_nom=f_b_nom[None,:], f_b_up=f_b_up, f_b_dw=f_b_dw)
+        get_nll = partialler(calc_nll, s_true=self.true_mu, b_true=self.true_b,
+                             f_s=f_s, f_b_nom=f_b_nom, f_b_up=f_b_up, f_b_dw=f_b_dw)
         if self.aug_alpha:  # Alphas carry noise, optimise via Newton
             for i in range(self.n_steps):  # Newton optimise nuisances & mu
                 nll = get_nll(s_exp=alpha[0], alpha=alpha[1:])
@@ -60,6 +61,9 @@ class AbsInferno(AbsCallback):
                 alpha = alpha-s
         nll = get_nll(s_exp=alpha[0], alpha=alpha[1:])
         _,h = calc_grad_hesse(nll, alpha, create_graph=True)
+#         print('hess', h)
+#         print('inverse', torch.inverse(h))
+#         print('reciprocal', 1/h)
         return torch.inverse(h)[0,0]
 
     def on_forwards_end(self) -> None:
