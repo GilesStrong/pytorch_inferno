@@ -4,13 +4,14 @@ __all__ = ['VariableSoftmax', 'AbsInferno', 'PaperInferno', 'InfernoPred']
 
 # Cell
 from .callback import AbsCallback, PredHandler
+from .inference import calc_grad_hesse
 
 import numpy as np
 from abc import abstractmethod
-from typing import Tuple, Optional
+from fastcore.all import store_attr
 
-import torch.nn as nn
-from torch import Tensor
+from torch import Tensor, nn
+import torch
 
 # Cell
 class VariableSoftmax(nn.Softmax):
@@ -35,7 +36,7 @@ class AbsInferno(AbsCallback):
         self.wrapper.loss_func = None  # Ensure loss function is skipped, callback computes loss value in `on_forwards_end`
         for c in self.wrapper.cbs:
             if hasattr(c, 'loss_is_meaned'): c.loss_is_meaned = False  # Ensure that average losses are correct
-        self.alpha = torch.zeros((self.n_alphas+1), requires_grad=True, device=self.wrapper.device)  #  Nuisances set to zero (true values)
+        self.alpha = torch.zeros((self.n_alphas+1), requires_grad=True, device=self.wrapper.device)  # Nuisances set to zero (true values)
         with torch.no_grad(): self.alpha[0] = self.true_mu  # POI set to true value
 
     def on_batch_begin(self) -> None:
@@ -47,7 +48,7 @@ class AbsInferno(AbsCallback):
 
     def on_batch_end(self) -> None:
         if self.aug_alpha:
-             with torch.no_grad(): self.alpha -= self.rand
+            with torch.no_grad(): self.alpha -= self.rand
         self.alpha.grad.data.zero_()
 
     @abstractmethod
@@ -55,10 +56,11 @@ class AbsInferno(AbsCallback):
         r'''Include nuisances in input data. Overide this for specific problem.'''
         pass
 
-    def get_inv_ikk(self, f_s:Tensor, f_b:Tensor) -> Tensor:
+    def get_inv_ikk(self, f_s:Tensor, f_b:Tensor, f_b_asimov:Tensor) -> Tensor:
         r'''Compute full hessian at true param values'''
-        nll = calc_nll(s_exp=self.alpha[0], alpha=self.alpha[1:], s_true=self.true_mu, b_true=self.true_b,
-                       f_s=f_s, f_b_nom=f_b, f_b_up=None, f_b_dw=None)
+        t_exp  = (self.alpha[0]*f_s)+(self.true_b*f_b)
+        asimov = (self.true_mu*f_s)+(self.true_b*f_b_asimov)
+        nll = -torch.distributions.Poisson(t_exp).log_prob(asimov).sum()
         _,h = calc_grad_hesse(nll, self.alpha, create_graph=True)
 #         print('hess', h)
 #         print('inverse', torch.inverse(h))
@@ -73,7 +75,8 @@ class AbsInferno(AbsCallback):
 
         f_s = to_shape(self.wrapper.y_pred[~self.b_mask])
         f_b = to_shape(self.wrapper.y_pred[self.b_mask])
-        self.wrapper.loss_val = self.get_inv_ikk(f_s=f_s, f_b=f_b)
+        f_b_asimov = to_shape(self.wrapper.model(self.wrapper.x[self.b_mask].detach())) if len(self.alpha) > 1 else f_b
+        self.wrapper.loss_val = self.get_inv_ikk(f_s=f_s, f_b=f_b, f_b_asimov=f_b_asimov)
 
 # Cell
 class PaperInferno(AbsInferno):
