@@ -27,7 +27,7 @@ class AbsInferno(AbsCallback):
     r'''Attempted reproduction of TF1 & TF2 INFERNO with exact effect of nuisances being passed through model
     Runs but doesn't reproduce paper results; values are off and display strong changes between benchmarks
     Includes option to randomise params per batch, but results in worse performance'''
-    def __init__(self, n:int, true_mu:float, n_alphas:int=0, aug_alpha:bool=False):
+    def __init__(self, n:int, true_mu:float, n_alphas:int=0):
         super().__init__()
         store_attr()
         self.true_b = self.n-self.true_mu
@@ -40,15 +40,10 @@ class AbsInferno(AbsCallback):
         with torch.no_grad(): self.alpha[0] = self.true_mu  # POI set to true value
 
     def on_batch_begin(self) -> None:
-        if self.aug_alpha:
-            self.rand = torch.randn_like(self.alpha, device=self.wrapper.device)/10
-            with torch.no_grad(): self.alpha += self.rand
         self.b_mask = self.wrapper.y.squeeze() == 0
         self.aug_data(self.wrapper.x)
 
     def on_batch_end(self) -> None:
-        if self.aug_alpha:
-            with torch.no_grad(): self.alpha -= self.rand
         self.alpha.grad.data.zero_()
 
     @abstractmethod
