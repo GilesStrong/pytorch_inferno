@@ -17,9 +17,9 @@ from fastcore.all import partialler
 from fastprogress import progress_bar
 import math
 
-from torch import Tensor
+from torch import Tensor, autograd
 import torch
-from torch import autograd
+from torch.distributions import Distribution
 
 # Cell
 def bin_preds(df:pd.DataFrame, bins:np.ndarray=np.linspace(0.,10.,11), pred_name='pred') -> None:
@@ -82,14 +82,20 @@ def interp_shape(alpha:Tensor, f_b_nom:Tensor, f_b_up:Tensor, f_b_dw:Tensor):
     return (f_b_nom + abs_var.sum(1, keepdim=True)).squeeze(1)
 
 # Cell
-def calc_nll(s_true:float, b_true:float, s_exp:float, f_s:Tensor, alpha:Tensor,
-             f_b_nom:Tensor, f_b_up:Optional[Tensor], f_b_dw:Optional[Tensor]) -> Tensor:
+def calc_nll(s_true:float, b_true:float, s_exp:Tensor, b_exp:Tensor, f_s:Tensor, alpha:Tensor,
+             f_b_nom:Tensor, f_b_up:Optional[Tensor], f_b_dw:Optional[Tensor],
+             b_aux:Optional[Distribution], alpha_aux:Optional[List[Distribution]]=None) -> Tensor:
     r'''Compute negative log-likelihood for specified parameters.'''
     f_b = interp_shape(alpha, f_b_nom, f_b_up, f_b_dw) if f_b_up is not None and f_b_dw is not None else f_b_nom
-    t_exp = (s_exp*f_s)+(b_true*f_b)
+    t_exp = (s_exp*f_s)+(b_exp*f_b)
     asimov = (s_true*f_s)+(b_true*f_b_nom)
-    p = torch.distributions.Poisson(t_exp)
-    return -p.log_prob(asimov).sum()
+    nll = -torch.distributions.Poisson(t_exp).log_prob(asimov).sum()
+    if alpha_aux is not None:  # Constrain shape nuisances
+        if len(alpha_aux) != len(alpha): raise ValueError("Number of auxillary measurements must match the number of nuisance parameters")
+        for a,x in zip(alpha, alpha_aux):
+            if x is not None: nll = nll-x.log_prob(a)
+    if b_aux is not None: nll = nll-b_aux.log_prob(b_exp)
+    return nll
 
 # Cell
 def jacobian(y:Tensor, x:Tensor, create_graph=False):
@@ -115,21 +121,24 @@ def calc_grad_hesse(nll:Tensor, alpha:Tensor, create_graph:bool=False) -> Tuple[
 
 # Cell
 def calc_profile(f_s:Tensor, f_b_nom:Tensor, f_b_up:Tensor, f_b_dw:Tensor, n:int,
-                 mu_scan:Tensor, true_mu:int, n_steps:int=100, lr:float=0.1,  verbose:bool=True) -> Tensor:
+                 mu_scan:Tensor, true_mu:int, n_steps:int=100, lr:float=0.1,  verbose:bool=True,
+                 alpha_aux:Optional[List[Distribution]]=None, float_b:bool=False, b_aux:Optional[Distribution]=None) -> Tensor:
     r'''Compute profile likelihoods for range of mu values, optimising on full hessian.
     Ideally mu-values should be computed in parallel, but batch-wise hessian in PyTorch is difficult.
     TODO: Fix this to run mu-scan in parallel'''
     f_b_nom = f_b_nom.unsqueeze(0)
-    get_nll = partialler(calc_nll, s_true=true_mu, b_true=n-true_mu, f_s=f_s, f_b_nom=f_b_nom, f_b_up=f_b_up, f_b_dw=f_b_dw)
+    b_true = n-true_mu
+    get_nll = partialler(calc_nll, s_true=true_mu, b_true=b_true, f_s=f_s, f_b_nom=f_b_nom, f_b_up=f_b_up, f_b_dw=f_b_dw,
+                         b_aux=b_aux, alpha_aux=alpha_aux)
     nlls = []
     for mu in progress_bar(mu_scan, display=verbose):
-        alpha = torch.zeros((f_b_up.shape[0]), requires_grad=True, device=f_b_nom.device)
+        alpha = torch.zeros((f_b_up.shape[0]+float_b), requires_grad=True, device=f_b_nom.device)
         for i in range(n_steps):  # Newton optimise nuisances
-            nll = get_nll(alpha=alpha, s_exp=mu)
+            nll = get_nll(alpha=alpha[:-1] if float_b else alpha, s_exp=mu, b_exp=b_true+alpha[-1] if float_b else b_true)
             grad, hesse = calc_grad_hesse(nll, alpha, create_graph=False)
             step = lr*grad.detach()@torch.inverse(hesse)
             step = torch.clamp(step, -100, 100)
             alpha = alpha-step
-        nlls.append(get_nll(alpha=alpha, s_exp=mu))
+        nlls.append(get_nll(alpha=alpha[:-1] if float_b else alpha, s_exp=mu, b_exp=b_true+alpha[-1] if float_b else b_true))
         if alpha.abs().max() > 1: print(f'Linear regime: Mu {mu.data.item()}, alpha {alpha.data}')
     return torch.stack(nlls)
