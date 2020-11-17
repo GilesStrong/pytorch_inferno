@@ -4,13 +4,17 @@ __all__ = ['VariableSoftmax', 'AbsInferno', 'PaperInferno', 'InfernoPred']
 
 # Cell
 from .callback import AbsCallback, PredHandler
+from .inference import calc_nll, calc_grad_hesse
 
 import numpy as np
 from abc import abstractmethod
-from typing import Tuple, Optional
+from typing import Tuple, Optional, List
+from fastcore.all import store_attr, partialler
 
 import torch.nn as nn
 from torch import Tensor
+import torch
+from torch.distributions import Distribution
 
 # Cell
 class VariableSoftmax(nn.Softmax):
@@ -26,7 +30,8 @@ class AbsInferno(AbsCallback):
     r'''Attempted reproduction INFERNO following paper description implementations with nuisances being approximated by creating up/down shapes and interpolating
     Runs and reproduces some of the paper results
     Includes option to randomise params per batch and converge to better values, but results in slightly worse performance'''
-    def __init__(self, n:int, true_mu:float, aug_alpha:bool=False, n_alphas:int=0, n_steps:int=100, lr:float=0.1):
+    def __init__(self, n:int, true_mu:float, aug_alpha:bool=False, n_alphas:int=0, n_steps:int=100, lr:float=0.1,
+                 float_b:bool=False, alpha_aux:Optional[List[Distribution]]=None, b_aux:Optional[Distribution]=None):
         super().__init__()
         store_attr()
         self.true_b = self.n-self.true_mu
@@ -48,18 +53,18 @@ class AbsInferno(AbsCallback):
 
     def get_ikk(self, f_s:Tensor, f_b_nom:Tensor, f_b_up:Tensor, f_b_dw:Tensor) -> Tensor:
         r'''Compute full hessian at true param values, or at random starting values with Newton updates'''
-        if self.aug_alpha: alpha = torch.randn((self.n_alphas+1), requires_grad=True, device=self.wrapper.device)/10
-        else:              alpha = torch.zeros((self.n_alphas+1), requires_grad=True, device=self.wrapper.device)
+        if self.aug_alpha: alpha = torch.randn((self.n_alphas+1+self.float_b), requires_grad=True, device=self.wrapper.device)/10
+        else:              alpha = torch.zeros((self.n_alphas+1+self.float_b), requires_grad=True, device=self.wrapper.device)
         with torch.no_grad(): alpha[0] += self.true_mu
         get_nll = partialler(calc_nll, s_true=self.true_mu, b_true=self.true_b,
-                             f_s=f_s, f_b_nom=f_b_nom, f_b_up=f_b_up, f_b_dw=f_b_dw)
+                             f_s=f_s, f_b_nom=f_b_nom, f_b_up=f_b_up, f_b_dw=f_b_dw, alpha_aux=self.alpha_aux, b_aux=self.b_aux)
         if self.aug_alpha:  # Alphas carry noise, optimise via Newton
             for i in range(self.n_steps):  # Newton optimise nuisances & mu
-                nll = get_nll(s_exp=alpha[0], alpha=alpha[1:])
+                nll = get_nll(s_exp=alpha[0], b_exp=self.true_b+alpha[1] if self.float_b else self.true_b, alpha=alpha[1+self.float_b:])
                 g,h = calc_grad_hesse(nll, alpha)
                 s = torch.clamp(self.lr*g.detach()@torch.inverse(h), -100, 100)
                 alpha = alpha-s
-        nll = get_nll(s_exp=alpha[0], alpha=alpha[1:])
+        nll = get_nll(s_exp=alpha[0], b_exp=self.true_b+alpha[1] if self.float_b else self.true_b, alpha=alpha[1+self.float_b:])
         _,h = calc_grad_hesse(nll, alpha, create_graph=True)
 #         print('hess', h)
 #         print('inverse', torch.inverse(h))
@@ -69,17 +74,19 @@ class AbsInferno(AbsCallback):
     def on_forwards_end(self) -> None:
         r'''Compute loss and replace wrapper loss value'''
         b = self.wrapper.y.squeeze() == 0
-        f_s = to_shape(self.wrapper.y_pred[~b])
-        f_b = to_shape(self.wrapper.y_pred[b])
+        f_s = self.to_shape(self.wrapper.y_pred[~b])
+        f_b = self.to_shape(self.wrapper.y_pred[b])
         f_b_up,f_b_dw = self._get_up_down(self.wrapper.x[b])
         self.wrapper.loss_val = self.get_ikk(f_s=f_s, f_b_nom=f_b, f_b_up=f_b_up, f_b_dw=f_b_dw)
 
 # Cell
 class PaperInferno(AbsInferno):
     def __init__(self, r_mods:Optional[Tuple[float,float]]=(-0.2,0.2), l_mods:Optional[Tuple[float,float]]=(2.5,3.5), l_init:float=3,
-                 n:int=1050, true_mu:int=50, aug_alpha:bool=False, n_steps:int=10, lr:float=0.1):
+                 n:int=1050, true_mu:int=50, aug_alpha:bool=False, n_steps:int=10, lr:float=0.1,
+                 float_b:bool=False, alpha_aux:Optional[List[Distribution]]=None, b_aux:Optional[Distribution]=None):
         r'''Inheriting class for dealing with INFERNO paper synthetic problem'''
-        super().__init__(n=n, true_mu=true_mu, aug_alpha=aug_alpha, n_alphas=(r_mods is not None)+(l_mods is not None), n_steps=n_steps, lr=lr)
+        super().__init__(n=n, true_mu=true_mu, aug_alpha=aug_alpha, n_alphas=(r_mods is not None)+(l_mods is not None), n_steps=n_steps, lr=lr,
+                         float_b=float_b, alpha_aux=alpha_aux, b_aux=b_aux)
         self.r_mods,self.l_mods,self.l_init = r_mods,l_mods,l_init
 
     def on_train_begin(self) -> None:
