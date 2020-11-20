@@ -106,7 +106,7 @@ class SaveBest(AbsCallback):
 
     def reset(self) -> None:
         self.min_loss = math.inf
-        self.savename.mkdir(exist_ok=True, parents=True)
+        self.savename.parent.mkdir(exist_ok=True, parents=True)
 
     def on_forwards_end(self) -> None:
         if self.wrapper.state == 'valid':
