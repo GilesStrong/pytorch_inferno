@@ -36,9 +36,6 @@ entries:
     - output: web,pdf
       title: Interpolation INFERNO loss
       url: inferno_interp.html
-    - output: web,pdf
-      title: BCE classifier
-      url: BCE_test.html
     output: web
     title: pytorch_inferno
   output: web

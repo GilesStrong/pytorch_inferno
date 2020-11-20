@@ -9,7 +9,6 @@
     "Plotting": "plotting.html",
     "Inference": "inference.html",
     "Exact INFERNO loss": "inferno_exact.html",
-    "Interpolation INFERNO loss": "inferno_interp.html",
-    "BCE classifier": "BCE_test.html"
+    "Interpolation INFERNO loss": "inferno_interp.html"
   }
 }

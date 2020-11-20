@@ -28,8 +28,7 @@ class VariableSoftmax(nn.Softmax):
 # Cell
 class AbsInferno(AbsCallback):
     r'''Attempted reproduction INFERNO following paper description implementations with nuisances being approximated by creating up/down shapes and interpolating
-    Runs and reproduces some of the paper results
-    Includes option to randomise params per batch and converge to better values, but results in slightly worse performance'''
+    Includes option to randomise params per batch and converge to better values, which results in slightly better performance'''
     def __init__(self, n:int, true_mu:float, aug_alpha:bool=False, n_alphas:int=0, n_steps:int=100, lr:float=0.1,
                  float_b:bool=False, alpha_aux:Optional[List[Distribution]]=None, b_aux:Optional[Distribution]=None):
         super().__init__()
@@ -81,10 +80,10 @@ class AbsInferno(AbsCallback):
 
 # Cell
 class PaperInferno(AbsInferno):
+    r'''Inheriting class for dealing with INFERNO paper synthetic problem'''
     def __init__(self, r_mods:Optional[Tuple[float,float]]=(-0.2,0.2), l_mods:Optional[Tuple[float,float]]=(2.5,3.5), l_init:float=3,
                  n:int=1050, true_mu:int=50, aug_alpha:bool=False, n_steps:int=10, lr:float=0.1,
                  float_b:bool=False, alpha_aux:Optional[List[Distribution]]=None, b_aux:Optional[Distribution]=None):
-        r'''Inheriting class for dealing with INFERNO paper synthetic problem'''
         super().__init__(n=n, true_mu=true_mu, aug_alpha=aug_alpha, n_alphas=(r_mods is not None)+(l_mods is not None), n_steps=n_steps, lr=lr,
                          float_b=float_b, alpha_aux=alpha_aux, b_aux=b_aux)
         self.r_mods,self.l_mods,self.l_init = r_mods,l_mods,l_init
