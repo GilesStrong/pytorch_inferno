@@ -97,12 +97,16 @@ class SaveBest(AbsCallback):
     r'''Tracks validation loss during training and automatically saves a copy of the weights to indicated file whenever validation loss decreases.
     Losses are assumed to be averaged and will be re-averaged over the epoch unless `loss_is_meaned` is false.'''
     def __init__(self, savename:Union[str,Path], auto_reload:bool=True, loss_is_meaned:bool=True):
+        savename = Path(savename)
         store_attr()
         self.reset()
 
-    def reset(self) -> None: self.min_loss = math.inf
     def on_train_begin(self) -> None: self.reset()
     def on_epoch_begin(self) -> None: self.loss,self.cnt = 0,0
+
+    def reset(self) -> None:
+        self.min_loss = math.inf
+        self.savename.mkdir(exist_ok=True, parents=True)
 
     def on_forwards_end(self) -> None:
         if self.wrapper.state == 'valid':
