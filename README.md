@@ -4,6 +4,13 @@
 
 
 ## Setup
+
+### User install
+```
+pip install pytorch_inferno
+```
+
+### Developer install
 ```
 [install torch>=1.7 according to CUDA version]
 pip install nbdev fastcore numpy pandas fastprogress matplotlib>=3.0.0 seaborn scipy
