@@ -3,8 +3,6 @@
 
 
 
-## Setup
-
 ### User install
 ```
 pip install pytorch_inferno
