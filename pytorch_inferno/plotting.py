@@ -60,7 +60,7 @@ def plot_likelihood(nlls:Union[Dict[str,Tensor],List[Tensor]], mu_scan:Tensor, l
     elif not is_listy(labels): labels = [labels]
 
     widths = []
-    with sns.axes_style(**plt_style), sns.color_palette(plt_cat_pal) as palette:
+    with sns.axes_style(**plt_style), sns.color_palette(plt_cat_pal):
         plt.figure(figsize=(plt_sz*16/9, plt_sz))
         plt.plot(mu_scan,0.5*np.ones_like(mu_scan), linestyle='--', color='black')
         for nll,lbl in zip(nlls,labels):
@@ -71,7 +71,7 @@ def plot_likelihood(nlls:Union[Dict[str,Tensor],List[Tensor]], mu_scan:Tensor, l
             plt.plot(mu_scan, dnll, label=fr'{lbl} $\mu={mu_scan[np.argmin(nll)]}\pm {widths[-1]:.2f}$')
         plt.legend(fontsize=plt_leg_sz)
         plt.xlabel(r"$\mu$", fontsize=plt_lbl_sz)
-        plt.ylabel(r"Profiled $\Delta\left(-L\night)$", fontsize=plt_lbl_sz)
+        plt.ylabel(r"Profiled $\Delta\left(-L\right)$", fontsize=plt_lbl_sz)
         plt.xticks(fontsize=plt_tk_sz)
         plt.yticks(fontsize=plt_tk_sz)
         plt.show()
