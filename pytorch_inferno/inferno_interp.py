@@ -102,17 +102,17 @@ class PaperInferno(AbsInferno):
         if self.r_mods is None and self.l_mods is None: return None,None
         u,d = [],[]
         if self.r_mods is not None:
-            x = x+self.r_mod_t[0]
+            with torch.no_grad(): x = x+self.r_mod_t[0]
             d.append(self.to_shape(self.wrapper.model(x)))
-            x = x+self.r_mod_t[1]-self.r_mod_t[0]
+            with torch.no_grad(): x = x+self.r_mod_t[1]-self.r_mod_t[0]
             u.append(self.to_shape(self.wrapper.model(x)))
-            x = x-self.r_mod_t[1]
+            with torch.no_grad(): x = x-self.r_mod_t[1]
         if self.l_mods is not None:
-            x = x*self.l_mod_t[0]
+            with torch.no_grad(): x = x*self.l_mod_t[0]
             d.append(self.to_shape(self.wrapper.model(x)))
-            x = x*self.l_mod_t[1]/self.l_mod_t[0]
+            with torch.no_grad(): x = x*self.l_mod_t[1]/self.l_mod_t[0]
             u.append(self.to_shape(self.wrapper.model(x)))
-            x = x/self.l_mod_t[1]
+            with torch.no_grad(): x = x/self.l_mod_t[1]
         return torch.stack(u),torch.stack(d)
 
 # Cell
