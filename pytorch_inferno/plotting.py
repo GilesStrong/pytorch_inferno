@@ -71,7 +71,7 @@ def plot_likelihood(nlls:Union[Dict[str,Tensor],List[Tensor]], mu_scan:Tensor, l
             plt.plot(mu_scan, dnll, label=fr'{lbl} $\mu={mu_scan[np.argmin(nll)]}\pm {widths[-1]:.2f}$')
         plt.legend(fontsize=plt_leg_sz)
         plt.xlabel(r"$\mu$", fontsize=plt_lbl_sz)
-        plt.ylabel(r"Profiled $\Delta\left(-L\night)$", fontsize=plt_lbl_sz)
+        plt.ylabel(r"Profiled $\Delta\left(-L\right)$", fontsize=plt_lbl_sz)
         plt.xticks(fontsize=plt_tk_sz)
         plt.yticks(fontsize=plt_tk_sz)
         plt.show()
