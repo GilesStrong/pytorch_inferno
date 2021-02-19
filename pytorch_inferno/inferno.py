@@ -8,7 +8,7 @@ from .inference import calc_grad_hesse
 
 import numpy as np
 from abc import abstractmethod
-from fastcore.all import store_attr, delegates
+from fastcore.all import store_attr, delegates, is_close
 from typing import Optional, List
 
 from torch import Tensor, nn
@@ -54,7 +54,7 @@ class AbsInferno(AbsCallback):
 
     def on_batch_begin(self) -> None:
         self.b_mask = self.wrapper.y.squeeze() == 0
-        self.aug_data(self.wrapper.x)
+        self._aug_data(self.wrapper.x)
 
     def on_batch_end(self) -> None:
         self.alpha.grad.data.zero_()
