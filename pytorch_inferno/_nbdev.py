@@ -35,14 +35,16 @@ index = {"PseudoData": "00_pseudodata.ipynb",
          "get_paper_syst_shapes": "06_inference.ipynb",
          "get_likelihood_width": "06_inference.ipynb",
          "interp_shape": "06_inference.ipynb",
-         "calc_nll": "07_inferno_exact.ipynb",
+         "calc_nll": "06_inference.ipynb",
          "jacobian": "06_inference.ipynb",
          "calc_grad_hesse": "06_inference.ipynb",
-         "calc_profile": "07_inferno_exact.ipynb",
-         "VariableSoftmax": "07_inferno_interp.ipynb",
-         "AbsInferno": "07_inferno_interp.ipynb",
-         "PaperInferno": "07_inferno_interp.ipynb",
-         "InfernoPred": "07_inferno_interp.ipynb"}
+         "calc_profile": "06_inference.ipynb",
+         "VariableSoftmax": "07_inferno_exact.ipynb",
+         "AbsInferno": "07_inferno_exact.ipynb",
+         "PaperInferno": "07_inferno_exact.ipynb",
+         "InfernoPred": "07_inferno_exact.ipynb",
+         "AbsApproxInferno": "07_inferno_interp.ipynb",
+         "ApproxPaperInferno": "07_inferno_interp.ipynb"}
 
 modules = ["pseudodata.py",
            "model_wrapper.py",
@@ -51,8 +53,7 @@ modules = ["pseudodata.py",
            "utils.py",
            "plotting.py",
            "inference.py",
-           "inferno.py",
-           "inferno_interp.py"]
+           "inferno.py"]
 
 doc_url = "https://GilesStrong.github.io/pytorch_inferno/"
 

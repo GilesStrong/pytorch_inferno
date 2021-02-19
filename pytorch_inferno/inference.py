@@ -180,5 +180,5 @@ def calc_profile(f_s_nom:Tensor, f_b_nom:Tensor, n_obs:int, mu_scan:Tensor, mu_t
                 if alpha[shape_idxs].abs().max() > 1: print(f'Linear regime: Mu {mu.data.item()}, shape nuisances {alpha[shape_idxs].data}')
         nlls = torch.stack(nlls)
     else:
-        nlls = -torch.distributions.Poisson((mu_scan.reshape((-1,1))*f_s_nom)+(b_true*f_b)).log_prob((mu_true*f_s_nom)+(b_true*f_b)).sum(1)
+        nlls = -torch.distributions.Poisson((mu_scan.reshape((-1,1))*f_s_nom)+(b_true*f_b_nom)).log_prob((mu_true*f_s_nom)+(b_true*f_b_nom)).sum(1)
     return nlls
