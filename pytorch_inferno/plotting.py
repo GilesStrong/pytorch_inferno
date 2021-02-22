@@ -64,11 +64,11 @@ def plot_likelihood(nlls:Union[Dict[str,Tensor],List[Tensor]], mu_scan:Tensor, l
         plt.figure(figsize=(plt_sz*16/9, plt_sz))
         plt.plot(mu_scan,0.5*np.ones_like(mu_scan), linestyle='--', color='black')
         for nll,lbl in zip(nlls,labels):
-            dnll = nll-nll.min()  # Shift nll to zero
+            m = nll == nll
+            dnll = nll-nll[m].min()  # Shift nll to zero
             try:               widths.append(get_likelihood_width(nll, mu_scan=mu_scan))
             except ValueError: widths.append(np.NaN)
-            m = mu_scan[np.argmin(nll)]
-            plt.plot(mu_scan, dnll, label=fr'{lbl} $\mu={mu_scan[np.argmin(nll)]}\pm {widths[-1]:.2f}$')
+            plt.plot(mu_scan[m], dnll[m], label=fr'{lbl} $\mu={mu_scan[np.argmin(nll)]}\pm {widths[-1]:.2f}$')
         plt.legend(fontsize=plt_leg_sz)
         plt.xlabel(r"$\mu$", fontsize=plt_lbl_sz)
         plt.ylabel(r"Profiled $\Delta\left(-L\right)$", fontsize=plt_lbl_sz)

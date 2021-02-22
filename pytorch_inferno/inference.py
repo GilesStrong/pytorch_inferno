@@ -61,7 +61,8 @@ def get_paper_syst_shapes(bkg_data:np.ndarray, df:pd.DataFrame, model:ModelWrapp
 # Cell
 def get_likelihood_width(nll:np.ndarray, mu_scan:np.ndarray, val:float=0.5) -> float:
     r'''Compute width of likelihood at 95% confidence-level'''
-    r = InterpolatedUnivariateSpline(mu_scan, nll-val-nll.min()).roots()
+    m = nll == nll
+    r = InterpolatedUnivariateSpline(mu_scan[m], nll[m]-val-nll[m].min()).roots()
     if len(r) != 2: raise ValueError(f'No roots found at {val}, set val to a smaller value.')
     return (r[1]-r[0])/2
 
@@ -154,7 +155,7 @@ def calc_profile(f_s_nom:Tensor, f_b_nom:Tensor, n_obs:int, mu_scan:Tensor, mu_t
     if s_norm_aux is None: s_norm_aux = []
     if b_norm_aux is None: b_norm_aux = []
     # Compute nuisance indeces
-    n_alpha = len(f_b_up) if f_b_up is not None else 0
+    n_alpha = np.max((len(f_b_up) if f_b_up is not None else 0, len(f_s_up) if f_s_up is not None else 0))
     shape_idxs = list(range(n_alpha))
     s_norm_idxs = list(range(n_alpha, n_alpha+len(s_norm_aux)))
     n_alpha += len(s_norm_aux)
