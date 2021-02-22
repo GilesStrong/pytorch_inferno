@@ -82,19 +82,31 @@ def interp_shape(alpha:Tensor, f_b_nom:Tensor, f_b_up:Tensor, f_b_dw:Tensor):
     return (f_b_nom + abs_var.sum(1, keepdim=True)).squeeze(1)
 
 # Cell
-def calc_nll(s_true:float, b_true:float, s_exp:Tensor, b_exp:Tensor, f_s:Tensor, alpha:Tensor,
-             f_b_nom:Tensor, f_b_up:Optional[Tensor], f_b_dw:Optional[Tensor],
-             b_aux:Optional[Distribution], alpha_aux:Optional[List[Distribution]]=None) -> Tensor:
+def calc_nll(s_true:float, b_true:float, mu:Tensor, f_s_nom:Tensor, f_b_nom:Tensor,
+             shape_alpha:Optional[Tensor]=None, s_norm_alpha:Optional[Tensor]=None, b_norm_alpha:Optional[Tensor]=None,
+             f_s_up:Optional[Tensor]=None, f_s_dw:Optional[Tensor]=None,
+             f_b_up:Optional[Tensor]=None, f_b_dw:Optional[Tensor]=None,
+             s_norm_aux:Optional[Distribution]=None, b_norm_aux:Optional[Distribution]=None, shape_aux:Optional[List[Distribution]]=None) -> Tensor:
     r'''Compute negative log-likelihood for specified parameters.'''
-    f_b = interp_shape(alpha, f_b_nom, f_b_up, f_b_dw) if f_b_up is not None and f_b_dw is not None else f_b_nom
+    #  Adjust expectation by nuisances
+    f_s = interp_shape(shape_alpha, f_s_nom, f_s_up, f_s_dw) if shape_alpha is not None and f_s_up is not None else f_s_nom
+    f_b = interp_shape(shape_alpha, f_b_nom, f_b_up, f_b_dw) if shape_alpha is not None and f_b_up is not None  else f_b_nom
+    s_exp = mu    +s_norm_alpha.sum() if s_norm_alpha is not None else mu
+    b_exp = b_true+b_norm_alpha.sum() if b_norm_alpha is not None else b_true
+    #  Compute NLL
     t_exp = (s_exp*f_s)+(b_exp*f_b)
-    asimov = (s_true*f_s)+(b_true*f_b_nom)
+    asimov = (s_true*f_s_nom)+(b_true*f_b_nom)
     nll = -torch.distributions.Poisson(t_exp).log_prob(asimov).sum()
-    if alpha_aux is not None:  # Constrain shape nuisances
-        if len(alpha_aux) != len(alpha): raise ValueError("Number of auxillary measurements must match the number of nuisance parameters")
-        for a,x in zip(alpha, alpha_aux):
+    # Constrain nuisances
+    if shape_aux is not None:
+        if len(shape_aux) != len(shape_alpha): raise ValueError("Number of auxillary measurements must match the number of nuisance parameters.\
+                                                           Pass `None`s for unconstrained nuisances.")
+        for a,x in zip(shape_alpha, shape_aux):
             if x is not None: nll = nll-x.log_prob(a)
-    if b_aux is not None: nll = nll-b_aux.log_prob(b_exp)
+    if b_norm_alpha is not None:
+        for a,x in zip(b_norm_alpha, b_norm_aux): nll = nll-x.log_prob(a)
+    if s_norm_alpha is not None:
+        for a,x in zip(s_norm_alpha, s_norm_aux): nll = nll-x.log_prob(a)
     return nll
 
 # Cell
@@ -120,25 +132,53 @@ def calc_grad_hesse(nll:Tensor, alpha:Tensor, create_graph:bool=False) -> Tuple[
     return grad, hesse
 
 # Cell
-def calc_profile(f_s:Tensor, f_b_nom:Tensor, f_b_up:Tensor, f_b_dw:Tensor, n:int,
-                 mu_scan:Tensor, true_mu:int, n_steps:int=100, lr:float=0.1,  verbose:bool=True,
-                 alpha_aux:Optional[List[Distribution]]=None, float_b:bool=False, b_aux:Optional[Distribution]=None) -> Tensor:
+def calc_profile(f_s_nom:Tensor, f_b_nom:Tensor, n_obs:int, mu_scan:Tensor, mu_true:int,
+                 f_s_up:Optional[Tensor]=None, f_s_dw:Optional[Tensor]=None,
+                 f_b_up:Optional[Tensor]=None, f_b_dw:Optional[Tensor]=None,
+                 shape_aux:Optional[List[Distribution]]=None,
+                 s_norm_aux:Optional[List[Distribution]]=None, b_norm_aux:Optional[List[Distribution]]=None, nonaux_b_norm:bool=False,
+                 n_steps:int=100, lr:float=0.1,  verbose:bool=True) -> Tensor:
     r'''Compute profile likelihoods for range of mu values, optimising on full hessian.
-    Ideally mu-values should be computed in parallel, but batch-wise hessian in PyTorch is difficult.
-    TODO: Fix this to run mu-scan in parallel'''
-    f_b_nom = f_b_nom.unsqueeze(0)
-    b_true = n-true_mu
-    get_nll = partialler(calc_nll, s_true=true_mu, b_true=b_true, f_s=f_s, f_b_nom=f_b_nom, f_b_up=f_b_up, f_b_dw=f_b_dw,
-                         b_aux=b_aux, alpha_aux=alpha_aux)
-    nlls = []
-    for mu in progress_bar(mu_scan, display=verbose):
-        alpha = torch.zeros((f_b_up.shape[0]+float_b), requires_grad=True, device=f_b_nom.device)
-        for i in range(n_steps):  # Newton optimise nuisances
-            nll = get_nll(alpha=alpha[:-1] if float_b else alpha, s_exp=mu, b_exp=b_true+alpha[-1] if float_b else b_true)
-            grad, hesse = calc_grad_hesse(nll, alpha, create_graph=False)
-            step = lr*grad.detach()@torch.inverse(hesse)
-            step = torch.clamp(step, -100, 100)
-            alpha = alpha-step
-        nlls.append(get_nll(alpha=alpha[:-1] if float_b else alpha, s_exp=mu, b_exp=b_true+alpha[-1] if float_b else b_true))
-        if alpha.abs().max() > 1: print(f'Linear regime: Mu {mu.data.item()}, alpha {alpha.data}')
-    return torch.stack(nlls)
+    Ideally mu-values should be computed in parallel, but batch-wise hessian in PyTorch is difficult.'''
+    for f in [f_s_nom, f_s_up, f_s_dw, f_b_nom, f_b_up, f_b_dw]:  # Ensure correct dimensions
+        if f is not None and len(f.shape) < 2: f.unsqueeze_(0)
+    # Cases where nuisance only causes up xor down variation
+    if (f_s_up is None and f_s_dw is not None): f_s_up = torch.repeat_interleave(f_s_nom, repeats=len(f_s_dw), dim=0)
+    if (f_s_dw is None and f_s_up is not None): f_s_dw = torch.repeat_interleave(f_s_nom, repeats=len(f_s_up), dim=0)
+    if (f_b_up is None and f_b_dw is not None): f_b_up = torch.repeat_interleave(f_s_nom, repeats=len(f_b_dw), dim=0)
+    if (f_b_dw is None and f_b_up is not None): f_b_dw = torch.repeat_interleave(f_s_nom, repeats=len(f_b_up), dim=0)
+    if f_s_up is not None and f_b_up is not None and len(f_s_up) != len(f_b_up):
+        raise ValueError("Shape variations for signal & background must have the same number of variations. \
+                          Please enter the nominal templates for nuisances that only affect either signal of background.")
+    # Norm uncertainties
+    if s_norm_aux is None: s_norm_aux = []
+    if b_norm_aux is None: b_norm_aux = []
+    # Compute nuisance indeces
+    n_alpha = len(f_b_up) if f_b_up is not None else 0
+    shape_idxs = list(range(n_alpha))
+    s_norm_idxs = list(range(n_alpha, n_alpha+len(s_norm_aux)))
+    n_alpha += len(s_norm_aux)
+    b_norm_idxs = list(range(n_alpha, n_alpha+len(b_norm_aux)+nonaux_b_norm))
+    n_alpha += len(b_norm_aux)+nonaux_b_norm
+
+    b_true = n_obs-mu_true
+    if n_alpha > 0:
+        nlls = []
+        get_nll = partialler(calc_nll, s_true=mu_true, b_true=b_true,
+                         f_s_nom=f_s_nom, f_s_up=f_s_up, f_s_dw=f_s_dw,
+                         f_b_nom=f_b_nom, f_b_up=f_b_up, f_b_dw=f_b_dw,
+                         s_norm_aux=s_norm_aux, b_norm_aux=b_norm_aux, shape_aux=shape_aux)
+        for mu in progress_bar(mu_scan, display=verbose):  # TODO: Fix this to run mu-scan in parallel
+                alpha = torch.zeros((n_alpha), requires_grad=True, device=f_b_nom.device)
+                for i in range(n_steps):  # Newton optimise nuisances
+                    nll = get_nll(shape_alpha=alpha[shape_idxs], mu=mu, s_norm_alpha=alpha[s_norm_idxs], b_norm_alpha=alpha[b_norm_idxs])
+                    grad, hesse = calc_grad_hesse(nll, alpha, create_graph=False)
+                    step = lr*grad.detach()@torch.inverse(hesse)
+                    step = torch.clamp(step, -100, 100)
+                    alpha = alpha-step
+                nlls.append(get_nll(shape_alpha=alpha[shape_idxs], mu=mu, s_norm_alpha=alpha[s_norm_idxs], b_norm_alpha=alpha[b_norm_idxs]).detach())
+                if alpha[shape_idxs].abs().max() > 1: print(f'Linear regime: Mu {mu.data.item()}, shape nuisances {alpha[shape_idxs].data}')
+        nlls = torch.stack(nlls)
+    else:
+        nlls = -torch.distributions.Poisson((mu_scan.reshape((-1,1))*f_s_nom)+(b_true*f_b_nom)).log_prob((mu_true*f_s_nom)+(b_true*f_b_nom)).sum(1)
+    return nlls
