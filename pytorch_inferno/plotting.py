@@ -28,7 +28,8 @@ plt_leg_sz   = 16
 
 # Cell
 def plot_preds(df:pd.DataFrame, bin_edges:np.ndarray=np.linspace(0.,1.,11), pred_names:Union[List[str],str]='pred') -> None:
-    r'''Plots predictions and background variations'''
+    r'''Plots predictions and background variations.
+    TODO: Gnerelaise this to plllot signal variations'''
     if not is_listy(pred_names): pred_names = [pred_names]
     with sns.axes_style(**plt_style), sns.color_palette(plt_cat_pal) as palette:
         plt.figure(figsize=(plt_sz*16/9, plt_sz))

@@ -67,20 +67,20 @@ def get_likelihood_width(nll:np.ndarray, mu_scan:np.ndarray, val:float=0.5) -> f
     return (r[1]-r[0])/2
 
 # Cell
-def interp_shape(alpha:Tensor, f_b_nom:Tensor, f_b_up:Tensor, f_b_dw:Tensor):
+def interp_shape(alpha:Tensor, f_nom:Tensor, f_up:Tensor, f_dw:Tensor):
     r'''Use quadratic interpolation between up/down systematic shapes and nominal in order to estimate shapes at arbitrary nuisance values.
     Linear extrapolation for absolute nuisances values greater than 1 (outside up/down shape range).
     Does not account for co-dependence of nuisances.
     Adapted from https://github.com/pablodecm/paper-inferno/blob/master/code/template_model.py under BSD 3-clause licence Copyright (c) 2018, Pablo de Castro, Tommaso Dorigo'''
-    alpha_t = torch.repeat_interleave(alpha.unsqueeze(-1), repeats=f_b_nom.shape[-1], dim=-1)
-    a = 0.5*(f_b_up+f_b_dw)[None,:]-f_b_nom
-    b = 0.5*(f_b_up-f_b_dw)[None,:]
+    alpha_t = torch.repeat_interleave(alpha.unsqueeze(-1), repeats=f_nom.shape[-1], dim=-1)
+    a = 0.5*(f_up+f_dw)[None,:]-f_nom
+    b = 0.5*(f_up-f_dw)[None,:]
 
-    switch = torch.where(alpha_t < 0., f_b_dw-f_b_nom, f_b_up-f_b_nom)
+    switch = torch.where(alpha_t < 0., f_dw-f_nom, f_up-f_nom)
     abs_var = torch.where(torch.abs(alpha_t) > 1.,
                           (b+(torch.sign(alpha_t)*a))*(alpha_t-torch.sign(alpha_t))+switch,
                           a*torch.pow(alpha_t, 2)+ b * alpha_t)
-    return (f_b_nom + abs_var.sum(1, keepdim=True)).squeeze(1)
+    return (f_nom + abs_var.sum(1, keepdim=True)).squeeze(1)
 
 # Cell
 def calc_nll(s_true:float, b_true:float, mu:Tensor, f_s_nom:Tensor, f_b_nom:Tensor,
