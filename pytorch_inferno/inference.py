@@ -97,7 +97,7 @@ def calc_nll(s_true:float, b_true:float, mu:Tensor, f_s_nom:Tensor, f_b_nom:Tens
     #  Compute NLL
     t_exp = (s_exp*f_s)+(b_exp*f_b)
     asimov = (s_true*f_s_nom)+(b_true*f_b_nom)
-    nll = -torch.distributions.Poisson(t_exp).log_prob(asimov).sum()
+    nll = -torch.distributions.Poisson(t_exp, False).log_prob(asimov).sum()
     # Constrain nuisances
     if shape_aux is not None:
         if len(shape_aux) != len(shape_alpha): raise ValueError("Number of auxillary measurements must match the number of nuisance parameters.\
@@ -181,5 +181,5 @@ def calc_profile(f_s_nom:Tensor, f_b_nom:Tensor, n_obs:int, mu_scan:Tensor, mu_t
                 if alpha[shape_idxs].abs().max() > 1: print(f'Linear regime: Mu {mu.data.item()}, shape nuisances {alpha[shape_idxs].data}')
         nlls = torch.stack(nlls)
     else:
-        nlls = -torch.distributions.Poisson((mu_scan.reshape((-1,1))*f_s_nom)+(b_true*f_b_nom)).log_prob((mu_true*f_s_nom)+(b_true*f_b_nom)).sum(1)
+        nlls = -torch.distributions.Poisson((mu_scan.reshape((-1,1))*f_s_nom)+(b_true*f_b_nom), False).log_prob((mu_true*f_s_nom)+(b_true*f_b_nom)).sum(1)
     return nlls

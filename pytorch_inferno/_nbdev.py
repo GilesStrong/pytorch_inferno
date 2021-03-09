@@ -43,8 +43,8 @@ index = {"PseudoData": "00_pseudodata.ipynb",
          "AbsInferno": "07_inferno_exact.ipynb",
          "PaperInferno": "07_inferno_exact.ipynb",
          "InfernoPred": "07_inferno_exact.ipynb",
-         "AbsApproxInferno": "07_inferno_interp.ipynb",
-         "ApproxPaperInferno": "07_inferno_interp.ipynb"}
+         "AbsApproxInferno": "08_inferno_interp.ipynb",
+         "ApproxPaperInferno": "08_inferno_interp.ipynb"}
 
 modules = ["pseudodata.py",
            "model_wrapper.py",
