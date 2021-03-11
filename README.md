@@ -1,14 +1,14 @@
-
-# Title
-
-
-
 [![pypi pytorch_inferno version](https://img.shields.io/pypi/v/pytorch_inferno.svg)](https://pypi.python.org/pypi/pytorch_inferno)
 [![pytorch_inferno python compatibility](https://img.shields.io/pypi/pyversions/pytorch_inferno.svg)](https://pypi.python.org/pypi/pytorch_inferno) [![pytorch_inferno license](https://img.shields.io/pypi/l/pytorch_inferno.svg)](https://pypi.python.org/pypi/pytorch_inferno)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4597140.svg)](https://doi.org/10.5281/zenodo.4597140)
 
 # PyTorch INFERNO
 
 Documentation: https://gilesstrong.github.io/pytorch_inferno/
+
+This package provides a PyTorch implementation of INFERNO ([de Castro and Dorigo, 2018](https://www.sciencedirect.com/science/article/pii/S0010465519301948)), along with a minimal high-level wrapper for training and applying PyTorch models, and running statistical inference of parameters of interest in the presence of nuisance parameters. INFERNO is implemented in the form of a callback, allowing it to be dropped in and swapped out with heavy rewriting of code.
+
+For an overview of the package, a breakdown of the INFERNO algorithm, and an introduction to parameter inference in HEP, I have written a 5-post blog series: https://gilesstrong.github.io/website/statistics/hep/inferno/2020/12/04/inferno-1.html
 
 ### User install
 ```
@@ -33,6 +33,37 @@ Experiments run in `experiments` directory.
 Use `nbdev_build_lib` to export code to library located in `pytorch_inferno`. This overwrites any changes in `pytorch_inferno`, i.e. only edit the notebooks.
 
 ## Results
+
+This package has been tested against the paper problem and reproduces its results within uncertainty
 ![title](nbs/imgs/results.png)
 
-https://docs.google.com/spreadsheets/d/1feR_prOMzlNAfuMtB7JyhSVaTM32wvdnt72aqcWzyy4/edit?usp=sharing
+## Reference
+
+If you have used this implementation of INFERNO in your analysis work and wish to cite it, the preferred reference is: *Giles C. Strong, pytorch_inferno, Zenodo (Mar. 2021), http://doi.org/10.5281/zenodo.4597140, Note: Please check https://github.com/GilesStrong/pytorch_inferno/graphs/contributors for the full list of contributors*
+
+```
+@misc{giles_chatham_strong_2021_4597140,  
+  author       = {Giles Chatham Strong},  
+  title        = {LUMIN},  
+  month        = mar,  
+  year         = 2021,  
+  note         = {{Please check https://github.com/GilesStrong/pytorch_inferno/graphs/contributors for the full list of contributors}},  
+  doi          = {10.5281/zenodo.4597140},  
+  url          = {https://doi.org/10.5281/zenodo.4597140}  
+}
+```
+
+The INFERNO algorithm should also be cited:
+```
+@article{DECASTRO2019170,
+    title = {INFERNO: Inference-Aware Neural Optimisation},
+    journal = {Computer Physics Communications},
+    volume = {244},
+    pages = {170-179},
+    year = {2019},
+    issn = {0010-4655},
+    doi = {https://doi.org/10.1016/j.cpc.2019.06.007},
+    url = {https://www.sciencedirect.com/science/article/pii/S0010465519301948},
+    author = {Pablo {de Castro} and Tommaso Dorigo},
+}
+```

@@ -32,8 +32,11 @@ nb_path: "nbs/index.ipynb"
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p><a href="https://pypi.python.org/pypi/pytorch_inferno"><img src="https://img.shields.io/pypi/v/pytorch_inferno.svg" alt="pypi pytorch_inferno version"></a>
-<a href="https://pypi.python.org/pypi/pytorch_inferno"><img src="https://img.shields.io/pypi/pyversions/pytorch_inferno.svg" alt="pytorch_inferno python compatibility"></a> <a href="https://pypi.python.org/pypi/pytorch_inferno"><img src="https://img.shields.io/pypi/l/pytorch_inferno.svg" alt="pytorch_inferno license"></a></p>
+<a href="https://pypi.python.org/pypi/pytorch_inferno"><img src="https://img.shields.io/pypi/pyversions/pytorch_inferno.svg" alt="pytorch_inferno python compatibility"></a> <a href="https://pypi.python.org/pypi/pytorch_inferno"><img src="https://img.shields.io/pypi/l/pytorch_inferno.svg" alt="pytorch_inferno license"></a>
+<a href="https://doi.org/10.5281/zenodo.4597140"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.4597140.svg" alt="DOI"></a></p>
 <h1 id="PyTorch-INFERNO">PyTorch INFERNO<a class="anchor-link" href="#PyTorch-INFERNO"> </a></h1><p>Documentation: <a href="https://gilesstrong.github.io/pytorch_inferno/">https://gilesstrong.github.io/pytorch_inferno/</a></p>
+<p>This package provides a PyTorch implementation of INFERNO (<a href="https://www.sciencedirect.com/science/article/pii/S0010465519301948">de Castro and Dorigo, 2018</a>), along with a minimal high-level wrapper for training and applying PyTorch models, and running statistical inference of parameters of interest in the presence of nuisance parameters. INFERNO is implemented in the form of a callback, allowing it to be dropped in and swapped out with heavy rewriting of code.</p>
+<p>For an overview of the package, a breakdown of the INFERNO algorithm, and an introduction to parameter inference in HEP, I have written a 5-post blog series: <a href="https://gilesstrong.github.io/website/statistics/hep/inferno/2020/12/04/inferno-1.html">https://gilesstrong.github.io/website/statistics/hep/inferno/2020/12/04/inferno-1.html</a></p>
 
 </div>
 </div>
@@ -64,14 +67,38 @@ nbdev_install_git_hooks</code></pre>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Results">Results<a class="anchor-link" href="#Results"> </a></h2><p><img src="/pytorch_inferno/imgs/results.png" alt="title"></p>
+<h2 id="Results">Results<a class="anchor-link" href="#Results"> </a></h2><p>This package has been tested against the paper problem and reproduces its results within uncertainty
+<img src="/pytorch_inferno/imgs/results.png" alt="title"></p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><a href="https://docs.google.com/spreadsheets/d/1feR_prOMzlNAfuMtB7JyhSVaTM32wvdnt72aqcWzyy4/edit?usp=sharing">https://docs.google.com/spreadsheets/d/1feR_prOMzlNAfuMtB7JyhSVaTM32wvdnt72aqcWzyy4/edit?usp=sharing</a></p>
+<h2 id="Reference">Reference<a class="anchor-link" href="#Reference"> </a></h2><p>If you have used this implementation of INFERNO in your analysis work and wish to cite it, the preferred reference is: <em>Giles C. Strong, pytorch_inferno, Zenodo (Mar. 2021), <a href="http://doi.org/10.5281/zenodo.4597140">http://doi.org/10.5281/zenodo.4597140</a>, Note: Please check <a href="https://github.com/GilesStrong/pytorch_inferno/graphs/contributors">https://github.com/GilesStrong/pytorch_inferno/graphs/contributors</a> for the full list of contributors</em></p>
+
+<pre><code>@misc{giles_chatham_strong_2021_4597140,  
+  author       = {Giles Chatham Strong},  
+  title        = {LUMIN},  
+  month        = mar,  
+  year         = 2021,  
+  note         = {{Please check https://github.com/GilesStrong/pytorch_inferno/graphs/contributors for the full list of contributors}},  
+  doi          = {10.5281/zenodo.4597140},  
+  url          = {https://doi.org/10.5281/zenodo.4597140}  
+}</code></pre>
+<p>The INFERNO algorithm should also be cited:</p>
+
+<pre><code>@article{DECASTRO2019170,
+    title = {INFERNO: Inference-Aware Neural Optimisation},
+    journal = {Computer Physics Communications},
+    volume = {244},
+    pages = {170-179},
+    year = {2019},
+    issn = {0010-4655},
+    doi = {https://doi.org/10.1016/j.cpc.2019.06.007},
+    url = {https://www.sciencedirect.com/science/article/pii/S0010465519301948},
+    author = {Pablo {de Castro} and Tommaso Dorigo},
+}</code></pre>
 
 </div>
 </div>
