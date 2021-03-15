@@ -5,6 +5,7 @@
 
 [![pypi pytorch_inferno version](https://img.shields.io/pypi/v/pytorch_inferno.svg)](https://pypi.python.org/pypi/pytorch_inferno)
 [![pytorch_inferno python compatibility](https://img.shields.io/pypi/pyversions/pytorch_inferno.svg)](https://pypi.python.org/pypi/pytorch_inferno) [![pytorch_inferno license](https://img.shields.io/pypi/l/pytorch_inferno.svg)](https://pypi.python.org/pypi/pytorch_inferno)
+[![CI](https://github.com/GilesStrong/pytorch_inferno/actions/workflows/main.yml/badge.svg)](https://github.com/GilesStrong/pytorch_inferno/actions)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4597140.svg)](https://doi.org/10.5281/zenodo.4597140)
 
 # PyTorch INFERNO
