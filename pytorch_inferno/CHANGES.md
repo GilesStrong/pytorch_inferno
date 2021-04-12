@@ -1,4 +1,25 @@
-# Targeting v0.2.0
+# Targeting v0.2.1
+
+## Important changes
+
+## Breaking
+
+## Additions
+
+## Removals
+
+## Fixes
+
+- Undefined `wgt_scale` removed from `plot_preds`
+- Bug in INFERNO when None was passed as `shape_aux` argument 
+
+## Changes
+
+## Depreciations
+
+## Comments
+
+# v0.2.0
 
 ## Important changes
 

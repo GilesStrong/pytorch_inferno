@@ -35,7 +35,7 @@ def plot_preds(df:pd.DataFrame, bin_edges:np.ndarray=np.linspace(0.,1.,11), pred
         plt.figure(figsize=(plt_sz*16/9, plt_sz))
         for t,n in ((1,'Signal'),(0,'Background')):
             cut = (df['gen_target'] == t)
-            hist_kws = {} if 'gen_weight' not in df.columns else {'weights':wgt_scale*df.loc[cut, 'gen_weight']}
+            hist_kws = {} if 'gen_weight' not in df.columns else {'weights':df.loc[cut, 'gen_weight']}
             if t == 0:
                 for i,p in enumerate(pred_names):
                     d = df.loc[cut, p]
