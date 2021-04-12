@@ -11,7 +11,7 @@
 ## Fixes
 
 - Undefined `wgt_scale` removed from `plot_preds`
-- Bug in INFERNO when None was passed as `shape_aux` argument 
+- Bug in INFERNO and ApproxPaperInferno when None was passed as `shape_aux` argument 
 
 ## Changes
 
