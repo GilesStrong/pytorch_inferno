@@ -12,7 +12,7 @@ from fastcore.all import store_attr, is_listy, typedispatch, Path
 from fastprogress import master_bar, progress_bar
 import numpy as np
 
-from torch.tensor import Tensor
+from torch import Tensor
 import torch
 import torch.nn as nn
 from torch import optim
