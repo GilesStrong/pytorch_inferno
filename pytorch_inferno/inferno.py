@@ -84,18 +84,23 @@ class AbsInferno(AbsCallback):
         return torch.inverse(h)[self.poi_idx,self.poi_idx]
 
     @staticmethod
-    def to_shape(p:Tensor) -> Tensor:
-        f = p.sum(0)+1e-7
+    def to_shape(p:Tensor, w:Optional[Tensor]=None) -> Tensor:
+        f = (p*w).sum(0)+1e-7 if w is not None else p.sum(0)+1e-7
         return f/f.sum()
 
     def on_forwards_end(self) -> None:
         r'''Compute loss and replace wrapper loss value'''
+
+        w_s = self.wrapper.w[~self.b_mask] if self.wrapper.w is not None else None
+        w_b = self.wrapper.w[self.b_mask] if self.wrapper.w is not None else None
+
         # Shapes with derivatives w.r.t. nuisances
-        f_s = self.to_shape(self.wrapper.y_pred[~self.b_mask])
-        f_b = self.to_shape(self.wrapper.y_pred[self.b_mask])
+        f_s = self.to_shape(self.wrapper.y_pred[~self.b_mask], w_s)
+        f_b = self.to_shape(self.wrapper.y_pred[self.b_mask], w_b)
+
         # Shapes without derivatives w.r.t. nuisances
-        f_s_asimov = self.to_shape(self.wrapper.model(self.wrapper.x[~self.b_mask].detach())) if self.s_shape_alpha else f_s
-        f_b_asimov = self.to_shape(self.wrapper.model(self.wrapper.x[self.b_mask].detach()))  if self.b_shape_alpha else f_b
+        f_s_asimov = self.to_shape(self.wrapper.model(self.wrapper.x[~self.b_mask].detach()), w_s) if self.s_shape_alpha else f_s
+        f_b_asimov = self.to_shape(self.wrapper.model(self.wrapper.x[self.b_mask].detach()), w_b)  if self.b_shape_alpha else f_b
 
         self.wrapper.loss_val = self.get_inv_ikk(f_s=f_s, f_b=f_b, f_s_asimov=f_s_asimov, f_b_asimov=f_b_asimov)
 
@@ -141,7 +146,7 @@ class AbsApproxInferno(AbsInferno):
             if hasattr(c, 'loss_is_meaned'): c.loss_is_meaned = False  # Ensure that average losses are correct
 
     @abstractmethod
-    def _get_up_down(self, x_s:Tensor, x_b:Tensor) -> Tuple[Tuple[Optional[Tensor],Optional[Tensor]],Tuple[Optional[Tensor],Optional[Tensor]]]:
+    def _get_up_down(self, x_s:Tensor, x_b:Tensor, w_s:Optional[Tensor]=None, w_b:Optional[Tensor]=None) -> Tuple[Tuple[Optional[Tensor],Optional[Tensor]],Tuple[Optional[Tensor],Optional[Tensor]]]:
         r'''Compute upd/down shapes for signal and background seperately. Overide this for specific problem.'''
         pass
 
@@ -166,8 +171,10 @@ class AbsApproxInferno(AbsInferno):
     def on_forwards_end(self) -> None:
         r'''Compute loss and replace wrapper loss value'''
         b = self.wrapper.y.squeeze() == 0
-        f_s = self.to_shape(self.wrapper.y_pred[~b])
-        f_b = self.to_shape(self.wrapper.y_pred[b])
+        w_s = self.wrapper.w[~b] if self.wrapper.w is not None else None
+        w_b = self.wrapper.w[b] if self.wrapper.w is not None else None
+        f_s = self.to_shape(self.wrapper.y_pred[~b], w_s)
+        f_b = self.to_shape(self.wrapper.y_pred[b], w_b)
         (f_s_up,f_s_dw),(f_b_up,f_b_dw)= self._get_up_down(self.wrapper.x[~b], self.wrapper.x[b])
         self.wrapper.loss_val = self.get_ikk(f_s_nom=f_s, f_b_nom=f_b, f_s_up=f_s_up, f_s_dw=f_s_dw, f_b_up=f_b_up, f_b_dw=f_b_dw)
 
@@ -191,8 +198,8 @@ class ApproxPaperInferno(AbsApproxInferno):
             self.l_mod_t[0][0,2] = self.l_mods[0]/self.l_init
             self.l_mod_t[1][0,2] = self.l_mods[1]/self.l_init
 
-    def _get_up_down(self, x_s:Tensor, x_b:Tensor) -> Tuple[Tuple[Optional[Tensor],Optional[Tensor]],Tuple[Optional[Tensor],Optional[Tensor]]]:
-        if self.r_mods is None and self.l_mods is None: return None,None
+    def _get_up_down(self, x_s:Tensor, x_b:Tensor, **kwargs) -> Tuple[Tuple[Optional[Tensor],Optional[Tensor]],Tuple[Optional[Tensor],Optional[Tensor]]]:
+        if self.r_mods is None and self.l_mods is None: return (None,None),(None,None)
         u,d = [],[]
         if self.r_mods is not None:
             with torch.no_grad(): x_b = x_b+self.r_mod_t[0]

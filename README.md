@@ -53,10 +53,9 @@ If you have used this implementation of INFERNO in your analysis work and wish t
 ```
 @misc{giles_chatham_strong_2021_4597140,  
   author       = {Giles Chatham Strong},  
-  title        = {LUMIN},  
-  month        = mar,  
-  year         = 2021,  
-  note         = {{Please check https://github.com/GilesStrong/pytorch_inferno/graphs/contributors for the full list of contributors}},  
+  title        = {PyTorch INFERNO},  
+  month        = Mar,  
+  year         = 2021,   
   doi          = {10.5281/zenodo.4597140},  
   url          = {https://doi.org/10.5281/zenodo.4597140}  
 }
