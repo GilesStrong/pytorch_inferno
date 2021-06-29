@@ -7,7 +7,7 @@ from .callback import AbsCallback, PredHandler
 from .inference import calc_grad_hesse
 
 import numpy as np
-from abc import abstractmethod
+from abc import abstractmethod, ABCMeta
 from fastcore.all import store_attr, delegates, is_close
 from typing import Optional, List
 
@@ -25,11 +25,10 @@ class VariableSoftmax(nn.Softmax):
     def forward(self, x:Tensor) -> Tensor: return super().forward(x/self.temp)
 
 # Cell
-class AbsInferno(AbsCallback):
+class AbsInferno(AbsCallback, metaclass=ABCMeta):
     r'''Attempted reproduction of TF1 & TF2 INFERNO with exact effect of nuisances being passed through model'''
     def __init__(self, b_true:float, mu_true:float, n_shape_alphas:int=0, s_shape_alpha:bool=False, b_shape_alpha:bool=False, nonaux_b_norm:bool=False,
                  shape_aux:Optional[List[Distribution]]=None, b_norm_aux:Optional[List[Distribution]]=None, s_norm_aux:Optional[List[Distribution]]=None):
-        super().__init__()
         store_attr()
         if self.shape_aux is not None and len(self.shape_aux) != self.n_shape_alphas: raise ValueError("Number of auxillary measurements on shape nuisances must match the number of shape nuisance parameters")
         self.n=self.mu_true+self.b_true
@@ -128,7 +127,7 @@ from fastcore.all import partialler
 from typing import Tuple
 
 # Cell
-class AbsApproxInferno(AbsInferno):
+class AbsApproxInferno(AbsInferno, metaclass=ABCMeta):
     r'''Attempted reproduction INFERNO following paper description implementations with nuisances being approximated by creating up/down shapes and interpolating
     Includes option to randomise params per batch and converge to better values, which results in slightly better performance'''
     @delegates(AbsInferno)

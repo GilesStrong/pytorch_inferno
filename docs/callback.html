@@ -66,7 +66,7 @@ nb_path: "nbs/03_callback.ipynb"
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h2 id="AbsCallback" class="doc_header"><code>class</code> <code>AbsCallback</code><a href="https://github.com/GilesStrong/pytorch_inferno/tree/master/pytorch_inferno/callback.py#L18" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>AbsCallback</code>() :: <code>ABC</code></p>
+<h2 id="AbsCallback" class="doc_header"><code>class</code> <code>AbsCallback</code><a href="https://github.com/GilesStrong/pytorch_inferno/tree/master/pytorch_inferno/callback.py#L17" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>AbsCallback</code>()</p>
 </blockquote>
 <p>Abstract callback passing though all action points and indicating where callbacks can affect the model.
 See <a href="/pytorch_inferno/model_wrapper.html#ModelWrapper"><code>ModelWrapper</code></a> etc. to see where exactly these action points are called.</p>
@@ -99,7 +99,7 @@ See <a href="/pytorch_inferno/model_wrapper.html#ModelWrapper"><code>ModelWrappe
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h2 id="LossTracker" class="doc_header"><code>class</code> <code>LossTracker</code><a href="https://github.com/GilesStrong/pytorch_inferno/tree/master/pytorch_inferno/callback.py#L43" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>LossTracker</code>(<strong><code>loss_is_meaned</code></strong>:<code>bool</code>=<em><code>True</code></em>) :: <a href="/pytorch_inferno/callback.html#AbsCallback"><code>AbsCallback</code></a></p>
+<h2 id="LossTracker" class="doc_header"><code>class</code> <code>LossTracker</code><a href="https://github.com/GilesStrong/pytorch_inferno/tree/master/pytorch_inferno/callback.py#L41" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>LossTracker</code>(<strong><code>loss_is_meaned</code></strong>:<code>bool</code>=<em><code>True</code></em>) :: <a href="/pytorch_inferno/callback.html#AbsCallback"><code>AbsCallback</code></a></p>
 </blockquote>
 <p>Tracks training and validation losses during training.
 Losses are assumed to be averaged and will be re-averaged over the epoch unless <code>loss_is_meaned</code> is false.</p>
@@ -132,7 +132,7 @@ Losses are assumed to be averaged and will be re-averaged over the epoch unless 
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h2 id="EarlyStopping" class="doc_header"><code>class</code> <code>EarlyStopping</code><a href="https://github.com/GilesStrong/pytorch_inferno/tree/master/pytorch_inferno/callback.py#L69" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>EarlyStopping</code>(<strong><code>patience</code></strong>:<code>int</code>, <strong><code>loss_is_meaned</code></strong>:<code>bool</code>=<em><code>True</code></em>) :: <a href="/pytorch_inferno/callback.html#AbsCallback"><code>AbsCallback</code></a></p>
+<h2 id="EarlyStopping" class="doc_header"><code>class</code> <code>EarlyStopping</code><a href="https://github.com/GilesStrong/pytorch_inferno/tree/master/pytorch_inferno/callback.py#L66" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>EarlyStopping</code>(<strong><code>patience</code></strong>:<code>int</code>, <strong><code>loss_is_meaned</code></strong>:<code>bool</code>=<em><code>True</code></em>) :: <a href="/pytorch_inferno/callback.html#AbsCallback"><code>AbsCallback</code></a></p>
 </blockquote>
 <p>Tracks validation loss during training and terminates training if loss doesn't decrease after <code>patience</code> number of epochs.
 Losses are assumed to be averaged and will be re-averaged over the epoch unless <code>loss_is_meaned</code> is false.</p>
@@ -165,7 +165,7 @@ Losses are assumed to be averaged and will be re-averaged over the epoch unless 
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h2 id="SaveBest" class="doc_header"><code>class</code> <code>SaveBest</code><a href="https://github.com/GilesStrong/pytorch_inferno/tree/master/pytorch_inferno/callback.py#L100" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>SaveBest</code>(<strong><code>savename</code></strong>:<code>Union</code>[<code>str</code>, <code>Path</code>], <strong><code>auto_reload</code></strong>:<code>bool</code>=<em><code>True</code></em>, <strong><code>loss_is_meaned</code></strong>:<code>bool</code>=<em><code>True</code></em>) :: <a href="/pytorch_inferno/callback.html#AbsCallback"><code>AbsCallback</code></a></p>
+<h2 id="SaveBest" class="doc_header"><code>class</code> <code>SaveBest</code><a href="https://github.com/GilesStrong/pytorch_inferno/tree/master/pytorch_inferno/callback.py#L96" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>SaveBest</code>(<strong><code>savename</code></strong>:<code>Union</code>[<code>str</code>, <code>Path</code>], <strong><code>auto_reload</code></strong>:<code>bool</code>=<em><code>True</code></em>, <strong><code>loss_is_meaned</code></strong>:<code>bool</code>=<em><code>True</code></em>) :: <a href="/pytorch_inferno/callback.html#AbsCallback"><code>AbsCallback</code></a></p>
 </blockquote>
 <p>Tracks validation loss during training and automatically saves a copy of the weights to indicated file whenever validation loss decreases.
 Losses are assumed to be averaged and will be re-averaged over the epoch unless <code>loss_is_meaned</code> is false.</p>
@@ -198,7 +198,7 @@ Losses are assumed to be averaged and will be re-averaged over the epoch unless 
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h2 id="PredHandler" class="doc_header"><code>class</code> <code>PredHandler</code><a href="https://github.com/GilesStrong/pytorch_inferno/tree/master/pytorch_inferno/callback.py#L134" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>PredHandler</code>() :: <a href="/pytorch_inferno/callback.html#AbsCallback"><code>AbsCallback</code></a></p>
+<h2 id="PredHandler" class="doc_header"><code>class</code> <code>PredHandler</code><a href="https://github.com/GilesStrong/pytorch_inferno/tree/master/pytorch_inferno/callback.py#L129" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>PredHandler</code>() :: <a href="/pytorch_inferno/callback.html#AbsCallback"><code>AbsCallback</code></a></p>
 </blockquote>
 <p>Default callback for predictions. Collects predictions over batches and returns them as stacked array</p>
 
@@ -230,7 +230,7 @@ Losses are assumed to be averaged and will be re-averaged over the epoch unless 
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h2 id="PaperSystMod" class="doc_header"><code>class</code> <code>PaperSystMod</code><a href="https://github.com/GilesStrong/pytorch_inferno/tree/master/pytorch_inferno/callback.py#L148" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>PaperSystMod</code>(<strong><code>r</code></strong>:<code>float</code>=<em><code>0</code></em>, <strong><code>l</code></strong>:<code>float</code>=<em><code>3</code></em>) :: <a href="/pytorch_inferno/callback.html#AbsCallback"><code>AbsCallback</code></a></p>
+<h2 id="PaperSystMod" class="doc_header"><code>class</code> <code>PaperSystMod</code><a href="https://github.com/GilesStrong/pytorch_inferno/tree/master/pytorch_inferno/callback.py#L140" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>PaperSystMod</code>(<strong><code>r</code></strong>:<code>float</code>=<em><code>0</code></em>, <strong><code>l</code></strong>:<code>float</code>=<em><code>3</code></em>) :: <a href="/pytorch_inferno/callback.html#AbsCallback"><code>AbsCallback</code></a></p>
 </blockquote>
 <p>Prediction callback for modifying input data from INFERNO paper according to specified nuisances.</p>
 
@@ -262,7 +262,7 @@ Losses are assumed to be averaged and will be re-averaged over the epoch unless 
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h2 id="GradClip" class="doc_header"><code>class</code> <code>GradClip</code><a href="https://github.com/GilesStrong/pytorch_inferno/tree/master/pytorch_inferno/callback.py#L159" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>GradClip</code>(<strong><code>clip</code></strong>:<code>float</code>, <strong><code>clip_norm</code></strong>:<code>bool</code>=<em><code>True</code></em>) :: <a href="/pytorch_inferno/callback.html#AbsCallback"><code>AbsCallback</code></a></p>
+<h2 id="GradClip" class="doc_header"><code>class</code> <code>GradClip</code><a href="https://github.com/GilesStrong/pytorch_inferno/tree/master/pytorch_inferno/callback.py#L149" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>GradClip</code>(<strong><code>clip</code></strong>:<code>float</code>, <strong><code>clip_norm</code></strong>:<code>bool</code>=<em><code>True</code></em>) :: <a href="/pytorch_inferno/callback.html#AbsCallback"><code>AbsCallback</code></a></p>
 </blockquote>
 <p>Training callback implementing gradient clipping</p>
 
