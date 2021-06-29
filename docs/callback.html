@@ -66,7 +66,7 @@ nb_path: "nbs/03_callback.ipynb"
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h2 id="AbsCallback" class="doc_header"><code>class</code> <code>AbsCallback</code><a href="https://github.com/GilesStrong/pytorch_inferno/tree/master/pytorch_inferno/callback.py#L18" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>AbsCallback</code>() :: <code>ABC</code></p>
+<h2 id="AbsCallback" class="doc_header"><code>class</code> <code>AbsCallback</code><a href="https://github.com/GilesStrong/pytorch_inferno/tree/master/pytorch_inferno/callback.py#L17" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>AbsCallback</code>()</p>
 </blockquote>
 <p>Abstract callback passing though all action points and indicating where callbacks can affect the model.
 See <a href="/pytorch_inferno/model_wrapper.html#ModelWrapper"><code>ModelWrapper</code></a> etc. to see where exactly these action points are called.</p>
@@ -262,7 +262,7 @@ Losses are assumed to be averaged and will be re-averaged over the epoch unless 
 
 
 <div class="output_markdown rendered_html output_subarea ">
-<h2 id="GradClip" class="doc_header"><code>class</code> <code>GradClip</code><a href="https://github.com/GilesStrong/pytorch_inferno/tree/master/pytorch_inferno/callback.py#L148" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>GradClip</code>(<strong><code>clip</code></strong>:<code>float</code>, <strong><code>clip_norm</code></strong>:<code>bool</code>=<em><code>True</code></em>) :: <a href="/pytorch_inferno/callback.html#AbsCallback"><code>AbsCallback</code></a></p>
+<h2 id="GradClip" class="doc_header"><code>class</code> <code>GradClip</code><a href="https://github.com/GilesStrong/pytorch_inferno/tree/master/pytorch_inferno/callback.py#L149" class="source_link" style="float:right">[source]</a></h2><blockquote><p><code>GradClip</code>(<strong><code>clip</code></strong>:<code>float</code>, <strong><code>clip_norm</code></strong>:<code>bool</code>=<em><code>True</code></em>) :: <a href="/pytorch_inferno/callback.html#AbsCallback"><code>AbsCallback</code></a></p>
 </blockquote>
 <p>Training callback implementing gradient clipping</p>
 

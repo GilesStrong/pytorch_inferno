@@ -8,11 +8,15 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        py_version: ['3.6', '3.7']
+        allow_failure: [false]
     steps:
     - uses: actions/checkout@v1
     - uses: actions/setup-python@v1
       with:
-        python-version: '3.6'
+        python-version: ${{matrix.py_version}}
         architecture: 'x64'
     - name: Install the library
       run: |

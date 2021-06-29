@@ -6,7 +6,6 @@ __all__ = ['AbsCallback', 'LossTracker', 'EarlyStopping', 'SaveBest', 'PredHandl
 from .utils import to_np
 
 from typing import Optional, Callable, Union
-from abc import ABC
 from fastcore.all import store_attr, Path
 import math
 import numpy as np
@@ -15,10 +14,11 @@ from torch import Tensor
 from torch import nn
 
 # Cell
-class AbsCallback(ABC):
+class AbsCallback():
     r'''Abstract callback passing though all action points and indicating where callbacks can affect the model.
     See `ModelWrapper` etc. to see where exactly these action points are called.'''
     def __init__(self): pass
+
     def set_wrapper(self, wrapper) -> None: self.wrapper = wrapper
     def on_train_begin(self) -> None: pass
     def on_train_end(self) -> None: pass
@@ -140,6 +140,7 @@ class PredHandler(AbsCallback):
 class PaperSystMod(AbsCallback):
     r'''Prediction callback for modifying input data from INFERNO paper according to specified nuisances.'''
     def __init__(self, r:float=0, l:float=3): store_attr()
+
     def on_batch_begin(self) -> None:
         self.wrapper.x[:,0] += self.r
         self.wrapper.x[:,2] *= self.l/3
