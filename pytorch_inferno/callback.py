@@ -18,7 +18,9 @@ from torch import nn
 class AbsCallback(ABC):
     r'''Abstract callback passing though all action points and indicating where callbacks can affect the model.
     See `ModelWrapper` etc. to see where exactly these action points are called.'''
-    def __init__(self): pass
+    def __init__(self):
+        if hasattr(self,'__slots__'): delattr(self,'__slots__')  # Py 3.7 & fastcore compatibility
+
     def set_wrapper(self, wrapper) -> None: self.wrapper = wrapper
     def on_train_begin(self) -> None: pass
     def on_train_end(self) -> None: pass
@@ -42,6 +44,7 @@ class LossTracker(AbsCallback):
     r'''Tracks training and validation losses during training.
     Losses are assumed to be averaged and will be re-averaged over the epoch unless `loss_is_meaned` is false.'''
     def __init__(self, loss_is_meaned:bool=True):
+        super().__init__()
         store_attr()
         self.reset()
 
@@ -67,6 +70,7 @@ class EarlyStopping(AbsCallback):
     r'''Tracks validation loss during training and terminates training if loss doesn't decrease after `patience` number of epochs.
     Losses are assumed to be averaged and will be re-averaged over the epoch unless `loss_is_meaned` is false.'''
     def __init__(self, patience:int, loss_is_meaned:bool=True):
+        super().__init__()
         store_attr()
         self.reset()
 
@@ -97,6 +101,7 @@ class SaveBest(AbsCallback):
     r'''Tracks validation loss during training and automatically saves a copy of the weights to indicated file whenever validation loss decreases.
     Losses are assumed to be averaged and will be re-averaged over the epoch unless `loss_is_meaned` is false.'''
     def __init__(self, savename:Union[str,Path], auto_reload:bool=True, loss_is_meaned:bool=True):
+        super().__init__()
         savename = Path(savename)
         store_attr()
         self.reset()
@@ -128,7 +133,10 @@ class SaveBest(AbsCallback):
 # Cell
 class PredHandler(AbsCallback):
     r'''Default callback for predictions. Collects predictions over batches and returns them as stacked array'''
-    def __init__(self): self.reset()
+    def __init__(self):
+        super().__init__()
+        self.reset()
+
     def reset(self) -> None: self.preds = []
     def on_pred_begin(self) -> None: self.reset()
     def on_pred_end(self) -> None: self.preds = np.vstack(self.preds)
@@ -139,7 +147,10 @@ class PredHandler(AbsCallback):
 # Cell
 class PaperSystMod(AbsCallback):
     r'''Prediction callback for modifying input data from INFERNO paper according to specified nuisances.'''
-    def __init__(self, r:float=0, l:float=3): store_attr()
+    def __init__(self, r:float=0, l:float=3):
+        super().__init__()
+        store_attr()
+
     def on_batch_begin(self) -> None:
         self.wrapper.x[:,0] += self.r
         self.wrapper.x[:,2] *= self.l/3
@@ -148,6 +159,7 @@ class PaperSystMod(AbsCallback):
 class GradClip(AbsCallback):
     r'''Training callback implementing gradient clipping'''
     def __init__(self, clip:float, clip_norm:bool=True):
+        super().__init__()
         self.clip = clip
         self.func = nn.utils.clip_grad_norm_ if clip_norm else nn.utils.clip_grad_value_
 
