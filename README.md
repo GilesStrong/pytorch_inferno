@@ -19,6 +19,8 @@ For an overview of the package, a breakdown of the INFERNO algorithm, and an int
 The authors' Tensorflow 1 code may be found here: https://github.com/pablodecm/paper-inferno
 And Lukas Layer's Tenforflow 2 version may be found here: https://github.com/llayer/inferno
 
+For a talk and tutorial on PyTorch INFERNO, please see https://github.com/GilesStrong/talk_pyhep21_pytorch_inferno, and https://youtu.be/5aWAxvdrszw?t=13543 for the YouTube recording.
+
 ### User install
 ```
 pip install pytorch_inferno
