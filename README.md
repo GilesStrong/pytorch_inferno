@@ -14,7 +14,9 @@ Documentation: https://gilesstrong.github.io/pytorch_inferno/
 
 This package provides a PyTorch implementation of INFERNO ([de Castro and Dorigo, 2018](https://www.sciencedirect.com/science/article/pii/S0010465519301948)), along with a minimal high-level wrapper for training and applying PyTorch models, and running statistical inference of parameters of interest in the presence of nuisance parameters. INFERNO is implemented in the form of a callback, allowing it to be dropped in and swapped out with heavy rewriting of code.
 
-For an overview of the package, a breakdown of the INFERNO algorithm, and an introduction to parameter inference in HEP, I have written a 5-post blog series: https://gilesstrong.github.io/website/statistics/hep/inferno/2020/12/04/inferno-1.html
+For a presentation of the package, check out my talk at PyHEP 2021: https://www.youtube.com/watch?v=copNcyHnHBs (slides here: https://github.com/GilesStrong/talk_pyhep21_pytorch_inferno)
+
+For a deeper overview of the package, a breakdown of the INFERNO algorithm, and an introduction to parameter inference in HEP, I have written a 5-post blog series: https://gilesstrong.github.io/website/statistics/hep/inferno/2020/12/04/inferno-1.html
 
 The authors' Tensorflow 1 code may be found here: https://github.com/pablodecm/paper-inferno
 And Lukas Layer's Tenforflow 2 version may be found here: https://github.com/llayer/inferno
