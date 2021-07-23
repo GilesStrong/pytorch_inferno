@@ -1,4 +1,24 @@
-# Targeting v0.2.1
+# Targeting v0.2.3
+
+## Important changes
+
+## Breaking
+
+## Additions
+
+## Removals
+
+## Fixes
+
+- `AbsInferno.get_inv_ikk` Asimov shape didn't use Asimov template for signal (Thanks @llayer)
+
+## Changes
+
+## Depreciations
+
+## Comments
+
+# v0.2.1
 
 ## Important changes
 

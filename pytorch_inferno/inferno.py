@@ -69,7 +69,7 @@ class AbsInferno(AbsCallback, metaclass=ABCMeta):
         s_exp = self.alpha[self.poi_idx]+self.alpha[self.s_norm_idxs].sum() if len(self.s_norm_idxs) > 0 else self.alpha[self.poi_idx]
         b_exp = self.b_true             +self.alpha[self.b_norm_idxs].sum() if len(self.b_norm_idxs) > 0 else self.b_true
         t_exp  = (s_exp*f_s)+(b_exp*f_b)
-        asimov = (self.mu_true*f_s)+(self.b_true*f_b_asimov)
+        asimov = (self.mu_true*f_s_asimov)+(self.b_true*f_b_asimov)
         nll = -torch.distributions.Poisson(t_exp, False).log_prob(asimov).sum()
         # Constrain nll
         if self.shape_aux is not None:
