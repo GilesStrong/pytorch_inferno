@@ -55,14 +55,14 @@ This package has been tested against the paper problem and reproduces its result
 If you have used this implementation of INFERNO in your analysis work and wish to cite it, the preferred reference is: *Giles C. Strong, pytorch_inferno, Zenodo (Mar. 2021), http://doi.org/10.5281/zenodo.4597140, Note: Please check https://github.com/GilesStrong/pytorch_inferno/graphs/contributors for the full list of contributors*
 
 ```
-@misc{giles_chatham_strong_2021_4597140,  
+@misc{giles_chatham_strong_2021_5040810,  
   author       = {Giles Chatham Strong},  
-  title        = {LUMIN},  
-  month        = mar,  
+  title        = {pytorch\_inferno},  
+  month        = jun,  
   year         = 2021,  
   note         = {{Please check https://github.com/GilesStrong/pytorch_inferno/graphs/contributors for the full list of contributors}},  
-  doi          = {10.5281/zenodo.4597140},  
-  url          = {https://doi.org/10.5281/zenodo.4597140}  
+  doi          = {10.5281/zenodo.5040810},  
+  url          = {https://doi.org/10.5281/zenodo.5040810}  
 }
 ```
 
