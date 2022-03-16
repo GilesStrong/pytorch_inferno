@@ -8,7 +8,7 @@ If you have used this implementation of INFERNO in your analysis work and wish t
   title        = {pytorch\_inferno},  
   month        = jun,  
   year         = 2021,  
-  note         = {{Please check https://github.com/GilesStrong/pytorch_inferno/graphs/contributors for the full list of contributors}},  
+  note         = {{Please check https://github.com/GilesStrong/pytorch\_inferno/graphs/contributors for the full list of contributors}},  
   doi          = {10.5281/zenodo.4597140},  
   url          = {https://doi.org/10.5281/zenodo.4597140}  
 }
